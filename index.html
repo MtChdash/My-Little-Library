@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d0b12">
+<title>My Little Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:SOFT,WONK,opsz,wght@60,1,9..144,400..700&amp;family=Nunito:wght@400..700&amp;display=swap" rel="stylesheet">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+:root{
+  --bg:#0d0b12; --panel:#15121d; --panel2:#1c1725; --text:#f4eff8;
+  --muted:#a69caf; --accent:#c9a7ff; --accent2:#8e6cc8; --line:#2a2334;
+  --danger:#e987a8;
+}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 80% 0%,#251a35 0,#0d0b12 38%);color:var(--text);font-family:Nunito,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,textarea,select{font:inherit} button{cursor:pointer}
+.app{max-width:520px;margin:auto;min-height:100vh;padding:22px 18px 100px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.eyebrow{font-size:11px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+h1{font:700 30px Georgia,serif;margin:5px 0 0}
+.icon{width:40px;height:40px;border:1px solid var(--line);background:#15121dcc;color:var(--text);border-radius:14px}
+.hero{padding:18px 18px 20px;border:1px solid var(--line);border-radius:24px;background:linear-gradient(145deg,#211a2caa,#121019aa);box-shadow:0 18px 50px #0005;margin-bottom:26px}
+.hero p{margin:7px 0 0;color:var(--muted);font-size:14px}
+.sectionHead{display:flex;justify-content:space-between;align-items:center;margin:22px 0 13px}
+.sectionHead h2{font:700 21px Fraunces,Georgia,serif;margin:0}
+.search{width:100%;padding:13px 15px;border-radius:15px;border:1px solid var(--line);background:#121019;color:var(--text);outline:none}
+.search:focus{border-color:var(--accent2)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.book{position:relative;min-width:0}
+.cover{aspect-ratio:2/3;border-radius:9px;overflow:hidden;background:linear-gradient(145deg,#31253d,#17131d);border:1px solid #ffffff12;box-shadow:0 10px 22px #0007;transition:.18s transform,.18s box-shadow}
+.book:active .cover{transform:scale(.97)}
+.book .cover{box-shadow:0 10px 22px #0007,0 0 0 1px #c9a7ff18,0 0 15px #a477df19}
+.book:hover .cover,.book:focus-visible .cover{box-shadow:0 12px 26px #0008,0 0 0 1px #c9a7ff88,0 0 23px #ad80ee66;transform:translateY(-2px)}
+.book{cursor:pointer}.book:focus-visible{outline:2px solid var(--accent);outline-offset:5px;border-radius:9px}
+.cover img{width:100%;height:100%;object-fit:cover;display:block}
+.coverPlaceholder{height:100%;padding:12px;display:flex;align-items:flex-end;font:700 16px Fraunces,Georgia,serif}
+.bookTitle{font-size:12px;line-height:1.25;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bookAuthor{font-size:10px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.empty{padding:36px 18px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:20px}
+.fab{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);border:0;border-radius:18px;padding:15px 22px;background:var(--accent);color:#171020;font-weight:800;box-shadow:0 12px 35px #0009}
+.modal{position:fixed;inset:0;background:#050408cc;backdrop-filter:blur(12px);display:none;align-items:flex-end;justify-content:center;z-index:10}
+.modal.open{display:flex}
+.sheet{width:min(520px,100%);max-height:92vh;overflow:auto;background:#121019;border:1px solid var(--line);border-radius:28px 28px 0 0;padding:20px 18px 28px;box-shadow:0 -20px 70px #000b}
+.sheetTop{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.sheet h2{font:700 25px Fraunces,Georgia,serif;margin:0}
+.close{background:#211b29;border:1px solid var(--line);color:var(--text);width:38px;height:38px;border-radius:13px}
+.detail{display:grid;grid-template-columns:120px 1fr;gap:18px}
+.detail .cover{width:120px}
+.meta h3{margin:0 0 5px;font:700 22px Fraunces,Georgia,serif}
+.meta p{margin:0 0 12px;color:var(--muted);font-size:13px}
+.statusEditor{margin-top:16px}.statusEditor label{margin:0 0 7px}.statusEditor select{width:100%}.badge{display:inline-block;padding:6px 9px;border-radius:10px;background:#251e30;color:var(--accent);font-size:11px}
+.note{margin-top:20px;padding:17px;border-radius:18px;background:#191521;border:1px solid var(--line)}.noteEditable{cursor:pointer;transition:border-color .2s,background .2s}.noteEditable:hover,.noteEditable:focus-visible{border-color:#8e6cc8;background:#211a2b;outline:none}.noteEditable .noteLabel{display:flex;align-items:center;justify-content:space-between}.noteHint{font:18px/1 Nunito,sans-serif;color:var(--accent);letter-spacing:0}
+.noteLabel{font-size:10px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase}
+.noteText{font:16px/1.6 Fraunces,Georgia,serif;margin-top:8px;white-space:pre-wrap}
+.stars{color:#ffd36a;letter-spacing:2px}
+label{display:block;font-size:12px;color:var(--muted);margin:14px 0 7px}
+input,textarea,select{width:100%;border:1px solid var(--line);background:#0e0c13;color:var(--text);border-radius:13px;padding:12px;outline:none}
+textarea{min-height:120px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.primary{width:100%;margin-top:18px;padding:14px;border:0;border-radius:14px;background:var(--accent);color:#171020;font-weight:800}
+.secondary{width:100%;margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#17131e;color:var(--text)}
+.file{padding:12px;border:1px dashed #51455e;border-radius:13px}
+.shelf{margin:24px 0 30px}.shelf .sectionHead{margin-bottom:13px}.shelfControls{display:flex;align-items:center;gap:10px}.shelfToggle{width:33px;height:33px;display:grid;place-items:center;border:1px solid #70558d;border-radius:11px;background:#251e30;color:var(--accent);transition:background .25s,border-color .25s}.shelfToggle:hover,.shelfToggle:focus-visible{background:#382a49;border-color:var(--accent)}.shelfToggle svg{width:15px;height:15px;transition:transform .48s ease}.shelf.collapsed .shelfToggle svg{transform:rotate(180deg)}.shelfBody{display:grid;grid-template-rows:1fr;transition:grid-template-rows .52s cubic-bezier(.22,1,.36,1),opacity .42s ease;opacity:1}.shelf.collapsed .shelfBody{grid-template-rows:0fr;opacity:0}.shelfInner{min-height:0;overflow:hidden}@media(prefers-reduced-motion:reduce){.shelfBody,.shelfToggle svg{transition:none}}.shelfCount{color:var(--muted);font-size:12px}.shelfEmpty{color:var(--muted);font-size:12px;padding:12px 0}
+.cassette{margin-top:19px;padding:16px;border:1px solid #70558d;border-radius:17px;background:linear-gradient(145deg,#312341,#1b1624);box-shadow:0 10px 25px #0005,0 0 18px #ab7de51c}
+.cassetteTop{display:flex;justify-content:space-between;gap:10px;color:var(--accent);font-size:10px;letter-spacing:.16em;text-transform:uppercase}.cassetteWindow{display:flex;justify-content:space-around;align-items:center;height:66px;margin:12px 0;border-radius:10px;background:#0e0c13;border:2px solid var(--cassette-detail,#7a6094)}.reel{width:35px;height:35px;border:6px dashed var(--cassette-detail,#a68abc);border-radius:50%;box-shadow:inset 0 0 0 4px var(--cassette-detail-inner,#372944)}.cassetteWindow{position:relative;overflow:hidden;isolation:isolate}.cassetteArt{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.28;z-index:0}.cassetteWindow .reel{position:relative;z-index:1}.reel{animation:reelTurn 4s linear infinite;animation-play-state:paused}.cassette.hasSong .reel{animation-play-state:running}@keyframes reelTurn{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.reel{animation:none}}
+.cassetteTitle{font:700 16px Fraunces,Georgia,serif;overflow-wrap:anywhere}.cassetteArtist{font-size:12px;color:var(--muted);margin-top:3px;overflow-wrap:anywhere}.cassette a{color:var(--accent);display:inline-block;margin-top:9px;font-size:12px}
+.removeArt{display:flex;align-items:center;gap:8px}.removeArt input{width:auto}
+.statusTrigger{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;border:1px solid #574469;background:#21192c;color:var(--text);border-radius:11px;padding:9px 10px;font-size:12px}.statusTrigger:focus-visible,.statusChoice:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.statusChevron{width:14px;height:14px;flex:none;color:var(--accent);transition:transform .65s ease}.statusEditor.open .statusChevron{transform:rotate(180deg)}.statusMenu{max-height:0;opacity:0;transform:translateY(-8px);overflow:hidden;visibility:hidden;pointer-events:none;transition:max-height .72s ease,opacity .65s ease,transform .72s ease,visibility 0s linear .72s}.statusEditor.open .statusMenu{max-height:110px;opacity:1;transform:translateY(0);visibility:visible;pointer-events:auto;transition:max-height .72s ease,opacity .65s ease,transform .72s ease,visibility 0s}.statusChoices{display:grid;gap:4px;padding-top:6px}.statusChoice{width:100%;border:1px solid var(--line);border-radius:10px;background:#1b1524;color:var(--text);text-align:left;padding:8px 10px;font-size:11px}.statusChoice:hover{background:#30233e;border-color:#70558d}@media(prefers-reduced-motion:reduce){.statusMenu,.statusChevron{transition:none}}
+/* Compact reading layout */
+body{font-size:13px}
+.app{padding:18px 16px 84px}
+header{margin-bottom:18px}h1{font-size:26px}
+.hero{padding:15px 16px;margin-bottom:20px;border-radius:20px}.hero p{font-size:12px}
+.sectionHead{margin:18px 0 10px}.sectionHead h2{font-size:18px}
+.search{padding:10px 12px;border-radius:12px;font-size:12px}
+.grid{gap:12px}.bookTitle{font-size:11px;margin-top:6px}.bookAuthor{font-size:10px}
+.shelf{margin:18px 0 22px}.shelf .sectionHead{margin-bottom:10px}
+.fab{padding:12px 18px;border-radius:15px;font-size:13px}
+.sheet{padding:16px 15px 22px;border-radius:24px 24px 0 0}.sheetTop{margin-bottom:12px}.sheet h2{font-size:21px}
+.detail{grid-template-columns:100px minmax(0,1fr);gap:13px}.detail .cover{width:100px}
+.meta h3{font-size:18px;line-height:1.15;margin-bottom:4px;overflow-wrap:anywhere}.meta p{font-size:11px;margin-bottom:8px}
+.statusEditor{margin-top:9px}.statusEditor label{margin-bottom:5px}
+label{font-size:11px;margin:11px 0 6px}input,textarea,select{padding:10px;border-radius:11px;font-size:12px}
+.note{margin-top:14px;padding:13px;border-radius:15px}.noteText{font-size:13px;line-height:1.55;margin-top:6px}
+.cassette{margin-top:14px;padding:13px;border-radius:15px}.cassetteWindow{height:58px;margin:9px 0}.reel{width:31px;height:31px;border-width:5px}.cassetteTitle{font-size:14px}.cassetteArtist,.cassette a{font-size:11px}
+.primary{margin-top:14px;padding:11px;font-size:12px}.secondary{margin-top:8px;padding:10px;font-size:12px}
+.detailCover{display:block;padding:0;color:var(--text);text-align:left;cursor:pointer}.detailCover:focus-visible,.titleEdit:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.detailCover .coverPlaceholder{width:100%}.metaTitle{display:flex;align-items:flex-start;gap:5px}.metaTitle h3{min-width:0}.titleEdit{flex:none;border:0;background:transparent;color:var(--accent);padding:2px 4px;font-size:15px;line-height:1;cursor:pointer}.coverViewer{width:min(520px,100%);height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 18px 38px;position:relative}.coverViewer .close{position:absolute;top:max(18px,env(safe-area-inset-top));right:18px}.coverViewer img{display:block;max-width:100%;max-height:76vh;object-fit:contain;border-radius:8px;box-shadow:0 20px 55px #000b}.coverEdit{display:flex;align-items:center;gap:7px;margin-top:16px;padding:9px 12px;border:1px solid #70558d;border-radius:12px;background:#21192c;color:var(--accent);font-size:12px}
+.book{-webkit-touch-callout:none}.book img{-webkit-user-drag:none;user-select:none}.book.dragSource{opacity:.28;outline:1px dashed #bb91ed;outline-offset:4px}.dragGhost{position:fixed;z-index:40;pointer-events:none;margin:0;opacity:.96;filter:drop-shadow(0 15px 25px #07040dbb);transition:transform .09s ease-out;will-change:transform}.dragGhost::after{content:"";position:absolute;inset:9% -12% -10%;z-index:-1;background:radial-gradient(ellipse at 42% 46%,#bb8cff88 0%,#a979e755 38%,transparent 73%);filter:blur(18px);transform:translate(-18px,12px) scale(1.15);animation:dragVeil 1s ease-in-out infinite alternate}.dragGhost .cover{box-shadow:0 0 0 1px #d8b8ff,0 0 27px #b983ffb0,0 16px 30px #0009}.dragGhost .bookTitle,.dragGhost .bookAuthor{opacity:.8}@keyframes dragVeil{to{opacity:.6;transform:translate(-27px,18px) scale(1.3)}}body.dragActive{user-select:none}.shelf.dragTarget>.sectionHead h2{color:var(--accent);text-shadow:0 0 12px #b889ff80}.shelf.dragTarget .grid{border-radius:12px;box-shadow:0 0 0 1px #c9a7ff30,0 0 20px #ad80ee22}.grid:empty{min-height:10px}.shelf.dragTarget .grid:empty{min-height:52px}.moveSheet{width:min(370px,calc(100% - 34px));margin:auto auto;max-height:80vh;border-radius:23px;padding:22px;background:linear-gradient(155deg,#2a1e3a,#15111e);text-align:center;box-shadow:0 24px 70px #000c}.moveSymbol{font-size:29px;color:var(--accent);margin:2px 0 10px}.moveSheet h2{font:700 20px Fraunces,Georgia,serif;margin:0 0 8px}.moveSheet p{font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 16px}.moveActions{display:flex;gap:9px}.moveActions button{flex:1;margin:0}.moveActions .primary{width:auto}.moveActions .secondary{width:auto}@media(prefers-reduced-motion:reduce){.dragGhost,.dragGhost::after{transition:none;animation:none}}
+.hasLocalDisplayFont .sectionHead h2,.hasLocalDisplayFont .sheet h2,.hasLocalDisplayFont .meta h3,.hasLocalDisplayFont .cassetteTitle,.hasLocalDisplayFont .moveSheet h2{font-family:EloraLocal,Fraunces,Georgia,serif}
+.settingsFab{position:fixed;z-index:5;left:max(18px,env(safe-area-inset-left));bottom:calc(23px + env(safe-area-inset-bottom));width:43px;height:43px;display:grid;place-items:center;border:1px solid #614c77;border-radius:15px;background:#211a2bcc;color:var(--accent);box-shadow:0 10px 28px #0008,0 0 15px #a477df25;backdrop-filter:blur(12px)}.settingsFab svg{width:20px;height:20px}.settingsFab:focus-visible,.settingsBack:focus-visible,.settingsRow:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.settingsPanel{position:fixed;inset:0;z-index:30;background:#0d0b12;opacity:0;visibility:hidden;transform:translateY(100%);transition:transform .52s cubic-bezier(.22,1,.36,1),opacity .4s ease,visibility 0s linear .52s}.settingsPanel.open{opacity:1;visibility:visible;transform:translateY(0);transition:transform .52s cubic-bezier(.22,1,.36,1),opacity .4s ease,visibility 0s}.settingsPage{max-width:520px;height:100%;margin:auto;overflow:auto;padding:calc(22px + env(safe-area-inset-top)) 18px calc(36px + env(safe-area-inset-bottom));background:radial-gradient(circle at 80% 0%,#281d39 0,#0d0b12 43%)}.settingsHeader{justify-content:flex-start;gap:14px;margin-bottom:13px}.settingsBack{width:39px;height:39px;display:grid;place-items:center;border:1px solid var(--line);border-radius:13px;background:#211a2b;color:var(--accent)}.settingsBack svg{width:18px;height:18px}.settingsTitle{font:700 23px Fraunces,Georgia,serif;margin:2px 0 0}.hasLocalDisplayFont .settingsTitle{font-family:EloraLocal,Fraunces,Georgia,serif}.settingsIntro{color:var(--muted);font-size:12px;margin:0 0 26px;line-height:1.5}.settingsGroup{margin:0 0 25px}.settingsGroup h3{font:700 16px Fraunces,Georgia,serif;margin:0 0 10px;color:var(--accent)}.settingsRow{width:100%;display:flex;align-items:center;gap:12px;margin-bottom:8px;padding:12px;border:1px solid #332a40;border-radius:17px;background:linear-gradient(140deg,#21192b,#16121e);color:var(--text);text-align:left;transition:background .2s,border-color .2s,transform .2s}.settingsRow:hover{background:#2a2035;border-color:#795c9a;transform:translateY(-1px)}.settingsRowIcon{flex:none;width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:#332442;color:var(--accent);font-size:21px;line-height:1}.settingsFontIcon{font:700 14px Fraunces,Georgia,serif}.settingsRowText{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}.settingsRowText strong{font-size:12px;font-weight:700}.settingsRowText small{font-size:10px;line-height:1.35;color:var(--muted)}.settingsArrow{font-size:23px;line-height:1;color:#9176ac}.settingsFoot{margin:30px 0 0;color:var(--muted);font-size:10px;text-align:center}@media(prefers-reduced-motion:reduce){.settingsPanel,.settingsRow{transition:none}}
+.addControls{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}.addControls .statusEditor{margin-top:0}.ratingControl{display:flex;align-items:center;gap:4px;min-height:38px}.starPicker{display:flex;align-items:center;gap:2px;touch-action:none;cursor:pointer;user-select:none;-webkit-user-select:none;outline:none}.starPicker:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}.starGlyph{width:26px;display:inline-block;text-align:center;font:700 27px/1 system-ui,sans-serif;color:transparent;-webkit-text-stroke:1px #aa98b8;background:linear-gradient(90deg,#ffd36a var(--fill,0%),transparent var(--fill,0%));background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent}.ratingClear{width:24px;height:27px;padding:0;border:0;background:transparent;color:var(--muted);font-size:16px}.ratingClear:hover{color:var(--accent)}.starDisplay{display:inline-flex;gap:2px;vertical-align:middle}.starDisplay .starGlyph{width:16px;font-size:17px}@media(max-width:380px){.addControls{grid-template-columns:1fr}}
+@media(min-width:460px){.grid{grid-template-columns:repeat(4,1fr)}}
+/* Clear, polished glass with a soft purple edge. */
+:is(.icon,.fab,.settingsFab,.settingsBack,.settingsRow,.close,.primary,.secondary,.shelfToggle,.statusTrigger,.statusChoice,.coverEdit,.ratingClear){
+  position:relative;
+  -webkit-backdrop-filter:blur(9px) saturate(125%);
+  backdrop-filter:blur(9px) saturate(125%);
+  background:linear-gradient(120deg,#ffffff1c 0%,#c9a7ff0d 38%,#ffffff08 65%,#c9a7ff17 100%);
+  border:1px solid #d9b8f97a;
+  color:#f5eefb;
+  box-shadow:inset 0 1px 0 #ffffff67,0 4px 15px #09051170,0 0 14px #ab79ec20;
+  text-shadow:none;
+  transition:background .35s ease,border-color .35s ease,box-shadow .35s ease,filter .35s ease,scale .35s ease;
+}
+:is(.icon,.fab,.settingsFab,.settingsBack,.settingsRow,.close,.primary,.secondary,.shelfToggle,.statusTrigger,.statusChoice,.coverEdit,.ratingClear)::before{
+  content:"";position:absolute;left:12%;right:12%;top:0;height:1px;border-radius:50%;
+  background:linear-gradient(90deg,transparent,#ffffffc4 35%,#fff7 70%,transparent);pointer-events:none;
+}
+:is(.icon,.fab,.settingsFab,.settingsBack,.settingsRow,.close,.primary,.secondary,.shelfToggle,.statusTrigger,.statusChoice,.coverEdit,.ratingClear):hover{
+  background:linear-gradient(120deg,#ffffff2b,#c9a7ff1d 42%,#ffffff0c 72%,#c9a7ff25);
+  border-color:#eedcffb8;
+  box-shadow:inset 0 1px 0 #ffffffa3,0 6px 18px #09051188,0 0 22px #b684f05c;
+}
+:is(.icon,.fab,.settingsFab,.settingsBack,.settingsRow,.close,.primary,.secondary,.shelfToggle,.statusTrigger,.statusChoice,.coverEdit,.ratingClear):active{
+  scale:.985;filter:brightness(1.12);
+  box-shadow:inset 0 1px 0 #ffffff8a,0 0 16px #b684f04d;
+}
+:is(.icon,.fab,.settingsFab,.settingsBack,.settingsRow,.close,.primary,.secondary,.shelfToggle,.statusTrigger,.statusChoice,.coverEdit,.ratingClear):focus-visible{outline:2px solid #d9b7ff;outline-offset:3px}
+.fab,.primary{background:linear-gradient(120deg,#d8b6f947,#b687e837 55%,#d7b5f72a);border-color:#ead4ffb5;color:#fffaff;box-shadow:inset 0 1px 0 #ffffff9e,0 5px 18px #09051188,0 0 19px #af76f545}
+.settingsRowIcon{background:#c9a7ff1b;border:1px solid #d8b8fc45;box-shadow:none}
+@media(prefers-reduced-motion:reduce){:is(.icon,.fab,.settingsFab,.settingsBack,.settingsRow,.close,.primary,.secondary,.shelfToggle,.statusTrigger,.statusChoice,.coverEdit,.ratingClear){transition:none}}
+/* Keep both floating actions on the viewport, with room for phone safe areas. */
+.fab{position:fixed;z-index:6;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);white-space:nowrap;background:linear-gradient(120deg,#ffffff20,#ffffff08 48%,#ffffff1b);border-color:#ffffff8c;color:#f8f7fb;box-shadow:inset 0 1px 0 #ffffff9c,0 5px 18px #09051188,0 0 13px #b684f02e}
+.fab:hover{background:linear-gradient(120deg,#ffffff35,#ffffff12 48%,#ffffff2b);border-color:#ffffffbf;box-shadow:inset 0 1px 0 #ffffffc4,0 6px 18px #09051188,0 0 18px #b684f040}
+.settingsFab{position:fixed;z-index:6;left:calc(18px + env(safe-area-inset-left,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));width:43px;height:43px}
+/* The title edit action stays a pencil, without a glass button around it. */
+.titleEdit,.titleEdit:hover,.titleEdit:active{background:transparent;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;text-shadow:none;color:var(--accent)}
+.titleEdit:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+</style>
+</head>
+<body>
+<div class="app" id="appRoot">
+<header><div><div class="eyebrow">Personal archive</div><h1>My Little Library</h1></div><button class="icon" onclick="openAdd()">＋</button></header>
+<section class="hero"><div class="eyebrow">Your shelves</div><p id="summary">No books yet. Let's fix that.</p></section>
+<input id="search" class="search" placeholder="Search books or authors…" oninput="render()">
+<div class="sectionHead"><h2>Library</h2><div class="eyebrow" id="count">0 books</div></div>
+<div id="shelves"></div>
+</div>
+<button id="settingsFab" class="settingsFab" type="button" aria-label="Open settings" title="Settings" onclick="openSettings()"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></button>
+<button id="addFab" class="fab" onclick="openAdd()">＋ Add a book</button>
+<section id="settingsPanel" class="settingsPanel" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" aria-hidden="true" inert>
+ <div class="settingsPage">
+  <header class="settingsHeader"><button id="settingsBack" class="settingsBack" type="button" aria-label="Back to library" onclick="closeSettings()"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m14 5-7 7 7 7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div><div class="eyebrow">My Little Library</div><h2 id="settingsTitle" class="settingsTitle">Settings</h2></div></header>
+  <p class="settingsIntro">A little place for the things behind your shelves.</p>
+  <div class="settingsGroup"><h3>Library data</h3>
+   <button class="settingsRow" type="button" onclick="exportLibrary()"><span class="settingsRowIcon" aria-hidden="true">↓</span><span class="settingsRowText"><strong>Download backup</strong><small>Keep a copy of your books and covers</small></span><span class="settingsArrow" aria-hidden="true">›</span></button>
+   <button class="settingsRow" type="button" onclick="$('restoreFile').click()"><span class="settingsRowIcon" aria-hidden="true">↑</span><span class="settingsRowText"><strong>Restore backup</strong><small>Bring your saved library onto this device</small></span><span class="settingsArrow" aria-hidden="true">›</span></button>
+   <input id="restoreFile" type="file" accept="application/json,.json" hidden onchange="importLibrary(this)">
+  </div>
+  <div class="settingsGroup"><h3>Appearance</h3>
+   <button class="settingsRow" type="button" onclick="$('localFontFile').click()"><span class="settingsRowIcon settingsFontIcon" aria-hidden="true">Aa</span><span class="settingsRowText"><strong>Title font</strong><small>Choose an OTF or TTF font on this device</small></span><span class="settingsArrow" aria-hidden="true">›</span></button>
+   <input id="localFontFile" type="file" accept=".otf,.ttf,font/otf,font/ttf" hidden onchange="importTitleFont(this)">
+  </div>
+  <p class="settingsFoot">Your books and chosen font stay on this device.</p>
+ </div>
+</section>
+
+<div id="detailModal" class="modal" onclick="if(event.target===this)closeModal('detailModal')"><div class="sheet">
+<div class="sheetTop"><h2>Book</h2><button class="close" onclick="closeModal('detailModal')">×</button></div>
+<div id="detailContent"></div>
+</div></div>
+
+<div id="addModal" class="modal" onclick="if(event.target===this)closeModal('addModal')"><div class="sheet">
+<div class="sheetTop"><h2>Add to the shelves</h2><button class="close" onclick="closeModal('addModal')">×</button></div>
+<form id="bookForm">
+<label>Book cover</label><input class="file" id="cover" type="file" accept="image/*">
+<div class="row"><div><label>Title</label><input id="title" required></div><div><label>Author</label><input id="author"></div></div>
+<div class="addControls"><div id="addStatusEditor" class="statusEditor"><label id="addStatusLabel">Status</label><button id="addStatusTrigger" class="statusTrigger" type="button" aria-labelledby="addStatusLabel addStatusTrigger" aria-expanded="false" aria-controls="addStatusMenu" onclick="toggleAddStatusMenu()"><span id="addStatusText">Want to Read</span><svg class="statusChevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 7 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div id="addStatusMenu" class="statusMenu" inert><div id="addStatusChoices" class="statusChoices"></div></div></div><div><label id="addRatingLabel">Rating (optional)</label><div class="ratingControl"><div id="addRatingPicker" class="starPicker" role="slider" tabindex="0" aria-labelledby="addRatingLabel" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="No rating"><span class="starGlyph" aria-hidden="true">★</span><span class="starGlyph" aria-hidden="true">★</span><span class="starGlyph" aria-hidden="true">★</span><span class="starGlyph" aria-hidden="true">★</span><span class="starGlyph" aria-hidden="true">★</span></div><button type="button" class="ratingClear" aria-label="Clear rating" onclick="setAddRating(0)">×</button></div></div></div>
+<label>Your note — the place to scream about the book</label><textarea id="note" placeholder="Write whatever this book did to you…"></textarea>
+<label>Song title for this book</label><input id="songTitle" placeholder="The song that sounds like this book…">
+<label>Artist</label><input id="songArtist" placeholder="Artist name">
+<label>Song link (optional)</label><input id="songLink" type="url" placeholder="https://…">
+<label>Image for the cassette (optional)</label><input class="file" id="songArt" type="file" accept="image/*">
+<button class="primary">Add to library</button>
+</form>
+</div></div>
+
+<div id="songModal" class="modal" onclick="if(event.target===this)closeModal('songModal')"><div class="sheet">
+<div class="sheetTop"><h2>Book soundtrack</h2><button class="close" onclick="closeModal('songModal')">×</button></div>
+<form id="songForm"><input id="songBookId" type="hidden">
+<label>Song title</label><input id="editSongTitle" placeholder="The song that sounds like this book…">
+<label>Artist</label><input id="editSongArtist" placeholder="Artist name">
+<label>Song link (optional)</label><input id="editSongLink" type="url" placeholder="https://…">
+<label>Image inside the cassette</label><input class="file" id="editSongArt" type="file" accept="image/*">
+<label class="removeArt"><input id="removeSongArt" type="checkbox"> Remove current cassette image</label>
+<button class="primary">Save soundtrack</button></form></div></div>
+<div id="noteModal" class="modal" onclick="if(event.target===this)closeModal('noteModal')"><div class="sheet">
+<div class="sheetTop"><h2>Cause of death</h2><button class="close" onclick="closeModal('noteModal')" aria-label="Close editor">×</button></div>
+<form id="noteForm"><input id="noteBookId" type="hidden"><label for="editNote">Your thoughts about this book</label><textarea id="editNote" placeholder="Write whatever this book did to you…"></textarea><button class="primary">Save note</button><button type="button" class="secondary" onclick="closeModal('noteModal')">Cancel</button></form>
+</div></div>
+<div id="titleModal" class="modal" onclick="if(event.target===this)closeModal('titleModal')"><div class="sheet">
+<div class="sheetTop"><h2>Edit book</h2><button class="close" onclick="closeModal('titleModal')" aria-label="Close book editor">×</button></div>
+<form id="titleForm"><input id="titleBookId" type="hidden"><label for="editTitle">Book title</label><input id="editTitle" required maxlength="300"><label for="editAuthor">Author</label><input id="editAuthor" maxlength="300"><div id="unratedPicker"><label id="ratingPickerLabel">Your rating (optional)</label><div class="ratingControl"><div id="editRatingPicker" class="starPicker" role="slider" tabindex="0" aria-labelledby="ratingPickerLabel" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="No rating"><span class="starGlyph" aria-hidden="true">★</span><span class="starGlyph" aria-hidden="true">★</span><span class="starGlyph" aria-hidden="true">★</span><span class="starGlyph" aria-hidden="true">★</span><span class="starGlyph" aria-hidden="true">★</span></div><button type="button" class="ratingClear" aria-label="Clear rating" onclick="setEditRating(0)">×</button></div></div><button class="primary">Save book</button><button type="button" class="secondary" onclick="closeModal('titleModal')">Cancel</button></form>
+</div></div>
+<div id="coverModal" class="modal" onclick="if(event.target===this)closeModal('coverModal')"><div class="coverViewer"><button class="close" onclick="closeModal('coverModal')" aria-label="Close cover">×</button><img id="fullCover" alt="Book cover"><button class="coverEdit" type="button" onclick="$('detailCoverFile').click()" aria-label="Change book cover">✎ <span>Change cover</span></button></div></div>
+<input id="detailCoverFile" type="file" accept="image/*" hidden onchange="saveCover(this)">
+<div id="moveModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="moveTitle"><div class="sheet moveSheet"><div class="moveSymbol" aria-hidden="true">✦</div><h2 id="moveTitle">Move this book?</h2><p id="moveMessage"></p><div class="moveActions"><button class="secondary" type="button" onclick="cancelBookMove()">Keep old shelf</button><button class="primary" type="button" onclick="confirmBookMove()">Move book</button></div></div></div>
+<script>
+const KEY="little-library-v1";
+let books=JSON.parse(localStorage.getItem(KEY)||"[]");
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem(KEY,JSON.stringify(books));}
+function esc(s=""){return s.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+function stars(n){const value=Math.max(0,Math.min(5,Math.round((Number(n)||0)*2)/2));if(!value)return "";const label=Number.isInteger(value)?`${value} out of 5 stars`:`${Math.floor(value)} and a half out of 5 stars`;return `<span class="starDisplay" role="img" aria-label="${label}">${Array.from({length:5},(_,i)=>`<span class="starGlyph" aria-hidden="true" style="--fill:${Math.max(0,Math.min(1,value-i))*100}%">★</span>`).join("")}</span>`}
+const STATUSES=["Want to Read","Currently Reading","Finished"];
+let addStatus=STATUSES[0],addRating=0;
+const SHELF_KEY="little-library-shelves-v1";
+const collapsedShelves=new Set((()=>{try{const saved=JSON.parse(localStorage.getItem(SHELF_KEY)||"[]");return Array.isArray(saved)?saved.filter(i=>Number.isInteger(i)&&i>=0&&i<STATUSES.length):[]}catch{return []}})());
+function toggleShelf(index){const shelf=document.querySelector(`[data-shelf="${index}"]`);if(!shelf)return;const collapsed=shelf.classList.toggle("collapsed");if(collapsed)collapsedShelves.add(index);else collapsedShelves.delete(index);try{localStorage.setItem(SHELF_KEY,JSON.stringify([...collapsedShelves]))}catch(e){alert("Could not remember the shelf layout on this device.")}shelf.querySelector(".shelfToggle").setAttribute("aria-expanded",String(!collapsed));shelf.querySelector(".shelfToggle").setAttribute("aria-label",`${collapsed?"Expand":"Collapse"} ${STATUSES[index]} shelf`);shelf.querySelector(".shelfInner").inert=collapsed}
+function safeSongLink(value){try{const u=new URL(value);return ["https:","http:"].includes(u.protocol)?u.href:""}catch{return ""}}
+async function compressedArt(file){if(!file)return "";if(!file.type.startsWith("image/"))throw Error("Choose an image");const url=URL.createObjectURL(file);try{const img=new Image();img.src=url;await img.decode();const scale=Math.min(1,640/Math.max(img.width,img.height));const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);return canvas.toDataURL("image/jpeg",.72)}finally{URL.revokeObjectURL(url)}}
+function bookCard(b){return `<article class="book" data-book-id="${esc(b.id)}" tabindex="0" role="button" aria-label="Open ${esc(b.title)}" onclick="if(!window.bookDragSuppress)openDetail('${b.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openDetail('${b.id}')}"><div class="cover">${b.cover?`<img src="${esc(b.cover)}" alt="">`:`<div class="coverPlaceholder">${esc(b.title)}</div>`}</div><div class="bookTitle">${esc(b.title)}</div><div class="bookAuthor">${esc(b.author||"Unknown author")}</div></article>`}
+function render(){
+ const q=$("search").value.toLowerCase().trim();
+ const list=books.filter(b=>(b.title+" "+b.author).toLowerCase().includes(q));
+ $("count").textContent=list.length+" book"+(list.length===1?"":"s");
+ $("summary").textContent=books.length?`${books.length} stories live here · ${books.filter(b=>b.status==="Finished").length} finished · ${books.filter(b=>b.status==="Currently Reading").length} in progress`:"No books yet. Let's fix that.";
+ $("shelves").innerHTML=list.length?STATUSES.map((status,index)=>{const shelf=list.filter(b=>b.status===status || (status===STATUSES[0]&&!STATUSES.includes(b.status)));const collapsed=collapsedShelves.has(index);return `<section class="shelf ${collapsed?"collapsed":""}" data-shelf="${index}"><div class="sectionHead"><h2 id="shelfTitle${index}">${status}</h2><div class="shelfControls"><span class="shelfCount">${shelf.length}</span><button class="shelfToggle" type="button" aria-label="${collapsed?"Expand":"Collapse"} ${status} shelf" aria-controls="shelfBody${index}" aria-expanded="${!collapsed}" onclick="toggleShelf(${index})"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 12 6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div><div id="shelfBody${index}" class="shelfBody"><div class="shelfInner" ${collapsed?"inert":""}><div class="grid">${shelf.map(bookCard).join("")}</div>${shelf.length?"":`<div class="shelfEmpty">No books on this shelf yet.</div>`}</div></div></section>`}).join(""):`<div class="empty">${q?"No matching books.":"Your shelves are empty.<br><br>Put the first book in there. 📖"}</div>`;
+}
+function showSettings(open){const panel=$("settingsPanel");panel.classList.toggle("open",open);panel.inert=!open;panel.setAttribute("aria-hidden",String(!open));$("appRoot").inert=open;$("addFab").inert=open;$("settingsFab").inert=open;document.body.style.overflow=open?"hidden":"";(open?$("settingsBack"):$("settingsFab")).focus()}
+function openSettings(){if($("settingsPanel").classList.contains("open"))return;history.pushState({littleLibrarySettings:true},"",location.href);showSettings(true)}
+function closeSettings(){if(history.state?.littleLibrarySettings)history.back();else showSettings(false)}
+window.addEventListener("popstate",()=>{if($("settingsPanel").classList.contains("open"))showSettings(false)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"&&$("settingsPanel").classList.contains("open"))closeSettings()});
+function renderAddStatusMenu(){$("addStatusText").textContent=addStatus;$("addStatusChoices").innerHTML=STATUSES.filter(status=>status!==addStatus).map(status=>`<button type="button" class="statusChoice" onclick="chooseAddStatus('${status}')">${status}</button>`).join("")}
+function toggleAddStatusMenu(force){const editor=$("addStatusEditor"),open=typeof force==="boolean"?force:!editor.classList.contains("open");editor.classList.toggle("open",open);$("addStatusTrigger").setAttribute("aria-expanded",String(open));$("addStatusMenu").inert=!open}
+function chooseAddStatus(status){if(!STATUSES.includes(status))return;addStatus=status;toggleAddStatusMenu(false);renderAddStatusMenu()}
+function ratingLabel(value){return value===0?"No rating":Number.isInteger(value)?`${value} out of 5 stars`:`${Math.floor(value)} and a half out of 5 stars`}
+function paintRating(el,value,preview=false){const normalized=Math.max(0,Math.min(5,value));el.querySelectorAll(".starGlyph").forEach((star,i)=>star.style.setProperty("--fill",`${Math.max(0,Math.min(1,normalized-i))*100}%`));if(!preview){el.setAttribute("aria-valuenow",String(normalized));el.setAttribute("aria-valuetext",ratingLabel(normalized))}}
+function ratingAtPointer(el,x){const stars=[...el.querySelectorAll(".starGlyph")];for(let i=0;i<stars.length;i++){const rect=stars[i].getBoundingClientRect();if(x<rect.right)return i+(x<rect.left+rect.width/2 ? .5 : 1)}return 5}
+function setupRatingPicker(el,getValue,setValue){let dragging=false;let activePointer=null;el.addEventListener("pointerdown",e=>{e.preventDefault();el.focus();dragging=true;activePointer=e.pointerId;el.setPointerCapture(e.pointerId);setValue(ratingAtPointer(el,e.clientX))});el.addEventListener("pointermove",e=>{if(dragging&&e.pointerId===activePointer)setValue(ratingAtPointer(el,e.clientX));else if(e.pointerType==="mouse")paintRating(el,ratingAtPointer(el,e.clientX),true)});el.addEventListener("pointerup",e=>{if(e.pointerId===activePointer){setValue(ratingAtPointer(el,e.clientX));dragging=false;activePointer=null}});el.addEventListener("pointercancel",()=>{dragging=false;activePointer=null;paintRating(el,getValue())});el.addEventListener("pointerleave",()=>{if(!dragging)paintRating(el,getValue())});el.addEventListener("keydown",e=>{let next=getValue();if(e.key==="ArrowRight"||e.key==="ArrowUp")next+=.5;else if(e.key==="ArrowLeft"||e.key==="ArrowDown")next-=.5;else if(e.key==="Home")next=0;else if(e.key==="End")next=5;else return;e.preventDefault();setValue(Math.max(0,Math.min(5,next)))})}
+function setAddRating(n){addRating=n;paintRating($("addRatingPicker"),n)}
+setupRatingPicker($("addRatingPicker"),()=>addRating,setAddRating);
+setupRatingPicker($("editRatingPicker"),()=>chosenBookRating,setEditRating);
+renderAddStatusMenu();
+function openAdd(){ $("addModal").classList.add("open"); }
+function closeModal(id){$(id).classList.remove("open");}
+$("bookForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ const file=$("cover").files[0];
+ let cover="";
+ if(file) cover=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)});
+ const art=await compressedArt($("songArt").files[0]);
+ const newBook={id:crypto.randomUUID(),title:$("title").value.trim(),author:$("author").value.trim(),status:addStatus,rating:addRating,note:$("note").value.trim(),songTitle:$("songTitle").value.trim(),songArtist:$("songArtist").value.trim(),songLink:safeSongLink($("songLink").value),songArt:art,cover,created:new Date().toISOString()};
+ const next=[newBook,...books];try{localStorage.setItem(KEY,JSON.stringify(next));books=next;e.target.reset();addStatus=STATUSES[0];setAddRating(0);toggleAddStatusMenu(false);renderAddStatusMenu();closeModal("addModal");render()}catch(err){alert("Could not save this book. Try a smaller cover or cassette image.")}
+});
+function tint(rgb,amount){const base=[16,13,22];return `rgb(${rgb.map((c,i)=>Math.round(c*amount+base[i]*(1-amount))).join(",")})`}
+function colorDistance(a,b){return Math.hypot(...a.map((v,i)=>v-b[i]))}
+function complementaryAccent(a,b){
+ const hueOf=rgb=>{const [r,g,blue]=rgb.map(v=>v/255),max=Math.max(r,g,blue),min=Math.min(r,g,blue),delta=max-min;if(!delta)return 0;const h=max===r?((g-blue)/delta)%6:max===g?(blue-r)/delta+2:(r-g)/delta+4;return (h*60+360)%360};
+ const colorAt=h=>{const sat=.86,light=.77,c=(1-Math.abs(2*light-1))*sat,x=c*(1-Math.abs((h/60)%2-1)),m=light-c/2;const [r,g,blue]=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];return [r,g,blue].map(v=>Math.round((v+m)*255))};
+ const backgrounds=[a.map((v,i)=>v*.55+[16,13,22][i]*.45),b.map((v,i)=>v*.42+[16,13,22][i]*.58)];
+ const candidates=[a,b].map(c=>colorAt((hueOf(c)+180)%360));
+ return candidates.sort((x,y)=>Math.min(...backgrounds.map(bg=>colorDistance(y,bg)))-Math.min(...backgrounds.map(bg=>colorDistance(x,bg))))[0]
+}
+function paintCassetteFromArt(img){
+ const box=img.closest(".cassette");if(!box)return;
+ try{
+  const canvas=document.createElement("canvas");canvas.width=36;canvas.height=36;
+  const ctx=canvas.getContext("2d",{willReadFrequently:true});ctx.drawImage(img,0,0,36,36);
+  const pixels=ctx.getImageData(0,0,36,36).data;const colors=[];
+  for(let i=0;i<pixels.length;i+=16){const rgb=[pixels[i],pixels[i+1],pixels[i+2]];const high=Math.max(...rgb),low=Math.min(...rgb);if(pixels[i+3]<180||high<35||low>235)continue;colors.push(rgb)}
+  if(!colors.length)return;
+  const score=c=>Math.max(...c)-Math.min(...c)+Math.max(...c)*.12;
+  let a=colors.reduce((best,c)=>score(c)>score(best)?c:best,colors[0]);
+  let b=colors.reduce((best,c)=>colorDistance(c,a)+score(c)*.4>colorDistance(best,a)+score(best)*.4?c:best,colors[0]);
+  for(let n=0;n<5;n++){const clusters=[[],[]];for(const c of colors)clusters[colorDistance(c,a)<colorDistance(c,b)?0:1].push(c);const average=(items,fallback)=>items.length?fallback.map((_,i)=>items.reduce((sum,c)=>sum+c[i],0)/items.length):fallback;a=average(clusters[0],a);b=average(clusters[1],b)}
+  if(colorDistance(a,b)<50)b=b.map((c,i)=>Math.min(255,Math.max(0,c+(i===0?50:i===2?-35:15))));
+  box.style.background=`linear-gradient(145deg,${tint(a,.55)},${tint(b,.42)})`;
+  box.style.borderColor=tint(a,.68);
+  const accent=complementaryAccent(a,b);
+  box.style.setProperty("--cassette-detail",`rgb(${accent.join(",")})`);
+  box.style.setProperty("--cassette-detail-inner",tint(accent,.24));
+ }catch(e){/* Preserve the original purple cassette if the image cannot be sampled. */}
+}
+function openDetail(id){
+ const b=books.find(x=>x.id===id); if(!b)return;
+ const link=safeSongLink(b.songLink||"");
+ $("detailContent").innerHTML=`<div class="detail"><button type="button" class="cover detailCover" aria-label="${b.cover?"View":"Add"} cover for ${esc(b.title)}" onclick="coverAction('${b.id}')">${b.cover?`<img src="${esc(b.cover)}" alt="">`:`<div class="coverPlaceholder">${esc(b.title)}</div>`}</button><div class="meta"><div class="metaTitle"><h3>${esc(b.title)}</h3><button type="button" class="titleEdit" aria-label="Edit book details for ${esc(b.title)}" onclick="editBookTitle('${b.id}')">✎</button></div><p>${esc(b.author||"Unknown author")}</p><div class="statusEditor"><label id="statusLabel">Reading status</label><button id="detailStatus" class="statusTrigger" type="button" aria-labelledby="statusLabel detailStatus" aria-expanded="false" aria-controls="statusChoices" onclick="toggleStatusMenu()"><span>${esc(b.status||STATUSES[0])}</span><svg class="statusChevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 7 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div id="statusChoices" class="statusMenu" inert><div class="statusChoices">${STATUSES.filter(status=>status!==b.status).map(status=>`<button type="button" class="statusChoice" onclick="updateStatus('${b.id}','${status}')">${status}</button>`).join("")}</div></div></div><div class="stars" style="margin-top:12px">${stars(b.rating)}</div></div></div><div class="cassette ${b.songTitle?"hasSong":""}"><div class="cassetteTop"><span>✦ Book soundtrack</span><span>Side A</span></div><div class="cassetteWindow">${b.songArt?`<img class="cassetteArt" src="${esc(b.songArt)}" alt="">`:""}<span class="reel"></span><span class="reel"></span></div><div class="cassetteTitle">${esc(b.songTitle||"No song chosen yet")}</div><div class="cassetteArtist">${esc(b.songArtist||"")}</div>${link?`<a href="${esc(link)}" target="_blank" rel="noopener noreferrer">Listen ↗</a>`:""}</div><button class="secondary" onclick="editSong('${b.id}')">${b.songTitle?"Edit song":"Add a song"}</button><div class="note noteEditable" role="button" tabindex="0" aria-label="Edit Cause of death for ${esc(b.title)}" onclick="editNote('${b.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();editNote('${b.id}')}"><div class="noteLabel">Cause of death <span class="noteHint" aria-hidden="true">✎</span></div><div class="noteText" ${b.note?"":'style="color:var(--muted)"'}>${b.note?esc(b.note):"Tap to write what this book did to you…"}</div></div><button class="secondary" onclick="deleteBook('${b.id}')">Remove from library</button>`;
+ $("detailModal").classList.add("open");
+ const art=$("detailContent").querySelector(".cassetteArt");if(art){if(art.complete)paintCassetteFromArt(art);else art.addEventListener("load",()=>paintCassetteFromArt(art),{once:true})}
+}
+let chosenBookRating=0;
+function setEditRating(n){chosenBookRating=n;paintRating($("editRatingPicker"),n)}
+function editBookTitle(id){const b=books.find(x=>x.id===id);if(!b)return;$("titleBookId").value=id;$("editTitle").value=b.title;$("editAuthor").value=b.author||"";chosenBookRating=0;$("unratedPicker").hidden=Boolean(Number(b.rating));setEditRating(0);$("titleModal").classList.add("open")}
+$("titleForm").addEventListener("submit",e=>{e.preventDefault();const id=$("titleBookId").value,title=$("editTitle").value.trim(),author=$("editAuthor").value.trim();if(!title)return;const current=books.find(b=>b.id===id);if(!current)return;const next=books.map(b=>b.id===id?{...b,title,author,rating:Number(b.rating)||chosenBookRating}:b);try{localStorage.setItem(KEY,JSON.stringify(next));books=next;closeModal("titleModal");render();openDetail(id)}catch(err){alert("Could not save the book details. The previous details are still safe.")}});
+let activeCoverBookId="";
+function coverAction(id){const b=books.find(x=>x.id===id);if(!b)return;activeCoverBookId=id;if(b.cover){$("fullCover").src=b.cover;$("fullCover").alt=`Cover of ${b.title}`;$("coverModal").classList.add("open")}else $("detailCoverFile").click()}
+async function saveCover(input){const file=input.files[0];input.value="";if(!file||!activeCoverBookId)return;try{const cover=await compressedArt(file);const next=books.map(b=>b.id===activeCoverBookId?{...b,cover}:b);localStorage.setItem(KEY,JSON.stringify(next));books=next;closeModal("coverModal");render();openDetail(activeCoverBookId)}catch(err){alert("Could not save the cover. Try a smaller image; your previous cover is still safe.")}}
+function editNote(id){const b=books.find(x=>x.id===id);if(!b)return;$("noteBookId").value=id;$("editNote").value=b.note||"";$("noteModal").classList.add("open")}
+$("noteForm").addEventListener("submit",e=>{e.preventDefault();const id=$("noteBookId").value;const b=books.find(x=>x.id===id);if(!b)return;const next=books.map(x=>x.id===id?{...x,note:$("editNote").value.trim()}:x);try{localStorage.setItem(KEY,JSON.stringify(next));books=next;closeModal("noteModal");openDetail(id)}catch(err){alert("Could not save the note. Your previous note is still safe.")}});
+function toggleStatusMenu(force){const editor=$("detailContent").querySelector(".statusEditor");if(!editor)return;const open=typeof force==="boolean"?force:!editor.classList.contains("open");editor.classList.toggle("open",open);editor.querySelector(".statusTrigger").setAttribute("aria-expanded",String(open));editor.querySelector(".statusMenu").inert=!open}
+document.addEventListener("click",e=>{if(!e.target.closest("#detailContent .statusEditor"))toggleStatusMenu(false);if(!e.target.closest("#addStatusEditor"))toggleAddStatusMenu(false)});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){toggleStatusMenu(false);toggleAddStatusMenu(false)}});
+function updateStatus(id,status){if(!STATUSES.includes(status))return;const current=books.find(b=>b.id===id);if(!current)return;const next=books.map(b=>b.id===id?{...b,status}:b);try{localStorage.setItem(KEY,JSON.stringify(next));books=next;render();openDetail(id)}catch(e){alert("Could not save the new status. Your book has not changed.");openDetail(id)}}
+function editSong(id){const b=books.find(x=>x.id===id);if(!b)return;$("songBookId").value=id;$("editSongTitle").value=b.songTitle||"";$("editSongArtist").value=b.songArtist||"";$("editSongLink").value=b.songLink||"";$("editSongArt").value="";$("removeSongArt").checked=false;$("songModal").classList.add("open")}
+$("songForm").addEventListener("submit",async e=>{e.preventDefault();const b=books.find(x=>x.id===$("songBookId").value);if(!b)return;try{const art=$("editSongArt").files[0]?await compressedArt($("editSongArt").files[0]):($("removeSongArt").checked?"":b.songArt||"");const changes={songTitle:$("editSongTitle").value.trim(),songArtist:$("editSongArtist").value.trim(),songLink:safeSongLink($("editSongLink").value),songArt:art};const next=books.map(x=>x.id===b.id?{...x,...changes}:x);localStorage.setItem(KEY,JSON.stringify(next));books=next;closeModal("songModal");openDetail(b.id)}catch(e){alert("Could not save this image. Try a smaller one or download a backup before freeing browser storage.")}});
+function exportLibrary(){const blob=new Blob([JSON.stringify({format:"my-little-library-v1",exportedAt:new Date().toISOString(),books},null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="my-little-library-backup.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),60000)}
+async function importLibrary(input){const file=input.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.format!=="my-little-library-v1"||!Array.isArray(data.books)||!data.books.every(b=>b&&typeof b.id==="string"&&typeof b.title==="string")){throw Error("Invalid backup")}if(!confirm(`Restore ${data.books.length} books? Current books on this device will be replaced.`))return;const previous=books;books=data.books;try{save()}catch(e){books=previous;throw e}render();alert("Library restored.")}catch(e){alert("Could not restore this backup. Check the file or available device storage.")}finally{input.value=""}}
+if("serviceWorker" in navigator && location.protocol==="https:")window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
+const FONT_DB="little-library-display-font-v1";
+function fontDatabase(){return new Promise((resolve,reject)=>{const request=indexedDB.open(FONT_DB,1);request.onupgradeneeded=()=>request.result.createObjectStore("fonts");request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})}
+async function applyLocalTitleFont(bytes){const face=new FontFace("EloraLocal",bytes,{weight:"700"});await face.load();document.fonts.add(face);document.body.classList.add("hasLocalDisplayFont")}
+async function loadLocalTitleFont(){try{const db=await fontDatabase();const bytes=await new Promise((resolve,reject)=>{const tx=db.transaction("fonts","readonly");const request=tx.objectStore("fonts").get("display");request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)});db.close();if(bytes)await applyLocalTitleFont(bytes)}catch(error){/* Keep the existing heading font when local font storage is unavailable. */}}
+async function importTitleFont(input){const file=input.files[0];input.value="";if(!file)return;if(!/\.(otf|ttf)$/i.test(file.name)){alert("Choose an OTF or TTF font file.");return}try{const bytes=await file.arrayBuffer();await applyLocalTitleFont(bytes);const db=await fontDatabase();await new Promise((resolve,reject)=>{const tx=db.transaction("fonts","readwrite");tx.objectStore("fonts").put(bytes,"display");tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)});db.close();alert("Title font saved on this device.")}catch(error){alert("Could not save this font on your device. Please try again.")}}
+loadLocalTitleFont();
+function deleteBook(id){if(confirm("Remove this book from your library?")){books=books.filter(b=>b.id!==id);save();closeModal("detailModal");render();}}
+render();
+</script>
+<script src="./drag.js"></script>
+</body>
+</html>
