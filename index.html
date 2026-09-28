@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d0b12">
+<meta name="description" content="A personal little library for the books you've read, the songs they sound like, and everything they made you feel.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="My Little Library — A home for the stories that stayed">
+<meta property="og:description" content="Keep your books, notes, and their soundtracks together in your own private little library.">
+<title>My Little Library — A home for the stories that stayed</title>
+<link rel="icon" href="./app/icon-192.png" type="image/png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:SOFT,WONK,opsz,wght@60,1,9..144,400..700&amp;family=Nunito:wght@400..700&amp;display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:dark;--bg:#0d0b12;--text:#f4eff8;--muted:#b4a9bf;--violet:#c9a7ff;--line:#6a507f}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;color:var(--text);background:radial-gradient(ellipse at 73% 17%,#2a1c3c 0,transparent 39%),radial-gradient(ellipse at 7% 76%,#191226 0,transparent 37%),var(--bg);font:16px/1.6 Nunito,system-ui,sans-serif;overflow-x:hidden}
+a{color:inherit}
+.page{width:min(1160px,100% - 44px);margin:auto}
+.topbar{height:84px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #b79bd325}
+.brand{font:700 22px Georgia,serif;text-decoration:none;letter-spacing:-.045em;white-space:nowrap}
+.toplink{text-decoration:none;color:var(--muted);font-size:13px;letter-spacing:.04em;transition:color .2s}.toplink:hover{color:var(--text)}
+.hero{min-height:690px;display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,.9fr);align-items:center;gap:40px;padding:54px 0 76px}
+.eyebrow{margin:0 0 22px;color:var(--violet);font-size:11px;letter-spacing:.24em;text-transform:uppercase;font-weight:800}
+h1,h2,h3,p{margin-top:0}
+h1{max-width:700px;font:500 clamp(48px,6vw,91px)/1.04 Fraunces,Georgia,serif;letter-spacing:-.065em;margin-bottom:26px}
+h1 em{font-weight:500;color:#d7b8ff}
+.lead{max-width:480px;font-size:17px;line-height:1.85;color:#c3b8cd;margin-bottom:29px}
+.cta{display:inline-flex;align-items:center;justify-content:center;gap:22px;min-height:54px;padding:12px 20px;border:1px solid #e2c9ffc2;border-radius:16px;background:linear-gradient(125deg,#faf3ff26,#cba9fa24 55%,#fff2);box-shadow:inset 0 1px 0 #fffb,0 14px 37px #0008,0 0 25px #ae78ee35;text-decoration:none;font-size:14px;font-weight:800;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:transform .25s,box-shadow .25s}
+.cta:hover{transform:translateY(-3px);box-shadow:inset 0 1px 0 #fffb,0 18px 40px #0009,0 0 33px #ae78ee7a}.cta:focus-visible,.toplink:focus-visible,.brand:focus-visible{outline:2px solid var(--violet);outline-offset:5px}
+.cta span{font-size:21px;font-weight:400;line-height:1}
+.free-note{color:#9d91a9;font-size:12px;margin:15px 0 0}
+.scene{position:relative;height:560px;isolation:isolate;display:grid;place-items:center;perspective:950px}
+.scene:before{content:"";position:absolute;width:450px;height:450px;border-radius:50%;background:#9d60dc35;filter:blur(90px);z-index:-1}
+.orbit{position:absolute;width:445px;height:445px;border:1px solid #c9a7ff22;border-radius:50%;transform:rotateX(69deg) rotate(-19deg)}
+.book{position:absolute;width:212px;height:323px;border-radius:4px 10px 10px 4px;box-shadow:12px 25px 43px #05020ace,-9px 0 16px #c4a1ea1c;overflow:hidden;transform-style:preserve-3d}
+.book:after{content:"";position:absolute;inset:0 auto 0 0;width:15px;background:linear-gradient(90deg,#0009,#fff2,#0004);border-right:1px solid #ffffff22}
+.book.back{left:8%;top:11%;transform:rotate(-17deg) rotateY(-17deg);background:radial-gradient(circle at 72% 30%,#9171ae,#30213f 42%,#1c142b 85%);border:1px solid #bea6db55}
+.book.back:before{content:"";position:absolute;left:52px;right:30px;top:44px;height:202px;border:1px solid #dac6e77a;border-radius:90px 90px 8px 8px;box-shadow:0 0 30px #bda2d856,inset 0 0 34px #c6a1dc38}
+.book.front{right:7%;top:21%;transform:rotate(11deg) rotateY(-13deg);background:radial-gradient(circle at 70% 27%,#79598d,#30213e 40%,#17121e 90%);border:1px solid #ddc5f655}
+.book.front:before{content:"✦";position:absolute;top:62px;left:0;width:100%;text-align:center;font:90px/1 Georgia,serif;color:#e4cef58a;text-shadow:0 0 28px #e7c8fa6b}
+.book-label{position:absolute;bottom:40px;left:28px;right:16px;border-top:1px solid #f2dbff5c;padding-top:17px;font:400 26px/1.06 Fraunces,Georgia,serif;color:#eee1f7}
+.book-label small{display:block;margin-top:10px;font:700 9px Nunito,sans-serif;letter-spacing:.19em;text-transform:uppercase;color:#c9b9d2}
+.cassette{position:absolute;width:235px;height:127px;left:21%;bottom:5%;transform:rotate(-9deg);background:linear-gradient(145deg,#4d355eec,#211929f5);border:1px solid #ddbbf69e;border-radius:13px;box-shadow:0 20px 40px #000c,0 0 28px #ad7ed64b;padding:12px 16px}
+.cassette small{display:block;font:800 9px Nunito,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:#e5cffa}
+.window{height:55px;border:2px solid #c5a4dcaa;border-radius:7px;background:linear-gradient(120deg,#151020,#45334c 50%,#17121d);margin:8px 0;display:flex;align-items:center;justify-content:space-around}
+.reel{width:32px;height:32px;border:5px dashed #ddc5ee;border-radius:50%;box-shadow:0 0 12px #ddc5ee44}
+.cassette-line{height:3px;width:56%;border-radius:4px;background:#dec3ed75}
+.section{border-top:1px solid #b79bd32a;padding:90px 0}
+.section h2{font:500 clamp(34px,4.2vw,58px)/1.12 Fraunces,Georgia,serif;letter-spacing:-.04em;margin-bottom:44px}
+.features{display:grid;grid-template-columns:repeat(3,1fr);gap:27px}
+.feature{min-height:190px;border-top:1px solid #ba9bda66;padding:22px 16px 15px 0}
+.feature b{display:block;color:#caa8ee;font-size:12px;letter-spacing:.16em;margin-bottom:26px}
+.feature h3{font:500 26px/1.13 Fraunces,Georgia,serif;margin:0 0 11px}
+.feature p{color:var(--muted);font-size:14px;line-height:1.7;margin:0;max-width:280px}
+.closing{padding:88px 0 98px;text-align:center;border-top:1px solid #b79bd32a}
+.closing h2{font:500 clamp(38px,5vw,68px)/1.09 Fraunces,Georgia,serif;letter-spacing:-.05em;margin-bottom:27px}
+.closing>p{color:var(--muted);max-width:530px;margin:0 auto 28px}
+.privacy{font-size:13px;color:#a99cb4;margin:28px auto 0;max-width:580px;line-height:1.7}
+.migration{font-size:12px;color:#9589a0;margin:18px auto 0;max-width:620px;line-height:1.65}.migration a{color:#ccb1ec;text-underline-offset:3px}
+footer{display:flex;justify-content:space-between;gap:16px;border-top:1px solid #b79bd32a;padding:22px 0 32px;color:#8e829a;font-size:12px}
+@media(max-width:780px){.page{width:min(100% - 34px,520px)}.topbar{height:68px}.brand{font-size:19px}.toplink{font-size:12px}.hero{min-height:0;grid-template-columns:1fr;gap:4px;padding:65px 0 41px}.hero-copy{text-align:left}h1{font-size:clamp(49px,10vw,68px)}.lead{font-size:15px;line-height:1.75}.scene{height:430px;transform:scale(.83);margin:-22px -34px -25px}.section{padding:63px 0}.section h2{margin-bottom:20px}.features{grid-template-columns:1fr;gap:0}.feature{min-height:0;padding:19px 0 23px}.feature b{margin-bottom:12px}.feature h3{font-size:24px}.closing{padding:68px 0 76px}}
+@media(max-width:390px){.scene{transform:scale(.72);margin:-50px -65px -48px}.book.back{left:5%}.book.front{right:5%}.cassette{left:19%}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.cta{transition:none}}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="topbar"><a class="brand" href="./">My Little Library</a><a class="toplink" href="./app/">Open the library ↗</a></header>
+<main>
+ <section class="hero" aria-labelledby="hero-title">
+  <div class="hero-copy"><p class="eyebrow">A personal archive of reading</p><h1 id="hero-title">A home for the stories <em>that stayed.</em></h1><p class="lead">Keep the books you love, the thoughts they left behind, and the songs that sound like them. Your own little world, one shelf at a time.</p><a class="cta" href="./app/">Open My Little Library <span aria-hidden="true">↗</span></a><p class="free-note">Open in your browser. No account needed.</p></div>
+  <div class="scene" aria-hidden="true"><div class="orbit"></div><div class="book back"><div class="book-label">A little<br>elsewhere<small>From the shelves</small></div></div><div class="book front"><div class="book-label">The things<br>we keep<small>From the shelves</small></div></div><div class="cassette"><small>✦ Book soundtrack · Side A</small><div class="window"><span class="reel"></span><span class="reel"></span></div><div class="cassette-line"></div></div></div>
+ </section>
+ <section class="section" aria-labelledby="inside-title"><p class="eyebrow">Inside your library</p><h2 id="inside-title">More than a list of books.</h2><div class="features"><article class="feature"><b>01 / SHELVES</b><h3>Every chapter has a place.</h3><p>Keep books you want to read, books in progress, and finished stories on their own shelves.</p></article><article class="feature"><b>02 / THE AFTERMATH</b><h3>Remember how it felt.</h3><p>Save your notes and ratings alongside each book, whenever the words find you.</p></article><article class="feature"><b>03 / SIDE A</b><h3>Give a story its song.</h3><p>Pair a book with a song and artwork in its own little cassette.</p></article></div></section>
+ <section class="closing" aria-labelledby="closing-title"><p class="eyebrow">Your shelves are waiting</p><h2 id="closing-title">Make a little room<br>for your stories.</h2><p>A quiet space to collect what you read and what you felt.</p><a class="cta" href="./app/">Open My Little Library <span aria-hidden="true">↗</span></a><p class="privacy">Your library stays in this browser. It does not sync between devices; use Download backup in Settings to keep a copy and Restore backup to bring it somewhere else.</p><p class="migration">Already using the earlier version? Download a backup from <a href="https://my-little-library-ola.olagutkowskiphd.chatgpt.site/">your existing library</a>, then restore it in the new app. Your books remain at the earlier address until you transfer them.</p></section>
+</main>
+<footer><span>My Little Library</span><span>For the stories you carry.</span></footer>
+</div>
+</body>
+</html>
