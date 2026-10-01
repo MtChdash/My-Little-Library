@@ -1,8 +1,8 @@
 /* Change RELEASE whenever any app shell asset changes. */
-const RELEASE='offline-1';
+const RELEASE='online-ux-1';
 const PREFIX='little-library-shell-'+encodeURIComponent(new URL(self.registration.scope).pathname)+'-';
 const CACHE=PREFIX+RELEASE;
-const SHELL=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./drag.js','./storage.js','./pwa.js','./fonts/fonts.css',...Array.from({length:8},(_,i)=>'./fonts/font-'+i+'.ttf')];
+const SHELL=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./drag.js','./storage.js','./pwa.js','./connectivity.js','./fonts/fonts.css',...Array.from({length:8},(_,i)=>'./fonts/font-'+i+'.ttf')];
 const URLS=new Set(SHELL.map(path=>new URL(path,self.registration.scope).href));
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(SHELL))));
 self.addEventListener('activate',event=>event.waitUntil((async()=>{const names=await caches.keys();await Promise.all(names.filter(name=>name.startsWith(PREFIX)&&name!==CACHE).map(name=>caches.delete(name)));await self.clients.claim();})()));
