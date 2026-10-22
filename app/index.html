@@ -136,6 +136,35 @@ label{font-size:11px;margin:11px 0 6px}input,textarea,select{padding:10px;border
 
 .aboutPanel summary{list-style:none;cursor:pointer}.aboutPanel summary::-webkit-details-marker{display:none}.aboutPanel[open] .settingsArrow{transform:rotate(90deg)}.aboutContent{padding:3px 14px 15px;border:1px solid #332a40;border-radius:15px;background:#16121e}.aboutContent .settingsFoot{text-align:left;margin:13px 0;font-size:11px;line-height:1.6;overflow-wrap:anywhere}.aboutIntro{color:var(--muted);font-size:12px;line-height:1.6}.aboutPanel[open] .aboutContent{animation:aboutIn .4s ease}@keyframes aboutIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .cassetteFlip{margin-top:14px;perspective:1100px;touch-action:pan-y;position:relative;outline:none}.cassetteFlip:focus-visible{outline:1px solid var(--accent);outline-offset:5px;border-radius:15px}.cassetteFaces{display:grid;transform-style:preserve-3d;transition:transform .85s cubic-bezier(.22,.7,.22,1)}.cassetteFlip .cassette{grid-area:1/1;margin:0;min-width:0;position:relative;backface-visibility:hidden;-webkit-backface-visibility:hidden}.cassetteSideB{transform:rotateY(180deg);isolation:isolate;overflow:hidden}.cassetteBackdrop{position:absolute;inset:-12px;width:calc(100% + 24px);height:calc(100% + 24px);object-fit:cover;filter:blur(9px);opacity:.55;z-index:-2;pointer-events:none}.cassetteSideB::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#0d0b1238,#0d0b12ad);z-index:-1;pointer-events:none}.cassetteSideB .cassetteArt{opacity:.85;filter:none}.cassetteSideB .cassetteTitle,.cassetteSideB .cassetteArtist,.cassetteSideB .cassetteTop,.cassetteSideB a{text-shadow:0 1px 5px #000}.cassetteSideLabel{border:0;border-radius:0;background:none;padding:0;color:inherit;font:inherit;letter-spacing:inherit;text-transform:inherit;cursor:pointer;box-shadow:none}.cassetteSideLabel:focus-visible{outline:1px solid currentColor;outline-offset:4px}.cassetteSwipeHint{display:block;text-align:center;color:var(--muted);font-size:9px;letter-spacing:.08em;margin:7px 0 0;opacity:.65}@media(prefers-reduced-motion:reduce){.cassetteFaces{transition:none}.aboutPanel[open] .aboutContent{animation:none}}
+
+#pdfReaderModal{z-index:30}
+/* Local PDF shelf */
+.pdfAttach{margin:14px 0;padding:12px;border:1px solid #49375e;border-radius:16px;background:linear-gradient(135deg,#241a33,#17121f)}
+.pdfAttachTop{display:flex;align-items:center;gap:10px;min-width:0}
+.pdfBadge{flex:0 0 38px;height:42px;border-radius:10px;display:grid;place-items:center;background:#3b2853;color:#e6d2ff;font-size:11px;font-weight:900;letter-spacing:.04em}
+.pdfFileInfo{min-width:0;flex:1}
+.pdfFileInfo strong,.pdfFileInfo small{display:block;overflow-wrap:anywhere}
+.pdfFileInfo strong{font-size:13px}.pdfFileInfo small{font-size:11px;color:var(--muted);margin-top:3px}
+.pdfActions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+.pdfActions .primary,.pdfActions .secondary{margin:0;padding:9px 12px;font-size:12px}
+.pdfReplace{font-size:12px;color:var(--accent);text-decoration:underline;text-underline-offset:3px;background:transparent;border:0;padding:6px}
+.pdfProgressRow{display:flex;justify-content:space-between;gap:8px;color:#d7c3f5;font-size:11px;margin-top:11px}
+.pdfProgress{width:100%;height:7px;accent-color:#d68bff;display:block;margin-top:5px;cursor:pointer}
+.pdfProgress::-webkit-slider-runnable-track{height:7px;border-radius:99px;background:linear-gradient(to right,#d68bff 0%,#8c5bd0 100%)}
+.pdfProgress::-webkit-slider-thumb{margin-top:-4px}
+.pdfPreviewEmpty{font-size:12px;color:var(--muted);margin:0}
+.pdfHiddenInput{display:none!important}
+#pdfReaderModal .sheet{max-width:760px}
+.pdfReaderTop{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.pdfReaderName{font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.pdfCanvasWrap{min-height:260px;max-height:65vh;overflow:auto;background:#211a2b;border:1px solid var(--line);border-radius:14px;display:flex;justify-content:center;align-items:flex-start;padding:10px}
+#pdfCanvas{display:block;max-width:100%;height:auto;background:white;box-shadow:0 5px 20px #0005}
+.pdfReaderControls{display:flex;align-items:center;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.pdfReaderControls button{padding:9px 12px}
+.pdfPageLabel{font-size:12px;color:var(--muted);min-width:90px;text-align:center}
+.pdfReaderError{color:#ffb5ca;font-size:13px;padding:16px}
+@media(max-width:420px){.pdfAttach{padding:10px}.pdfActions{gap:6px}.pdfActions .primary,.pdfActions .secondary{padding:8px 10px}}
+
 </style>
 </head>
 <body>
@@ -168,6 +197,7 @@ label{font-size:11px;margin:11px 0 6px}input,textarea,select{padding:10px;border
  </div>
 </section>
 
+<div id="pdfReaderModal" class="modal" onclick="if(event.target===this)closePdfReader()"><div class="sheet"><div class="pdfReaderTop"><div><h2 style="margin:0">Reading mode</h2><div id="pdfReaderName" class="pdfReaderName"></div></div><button class="close" type="button" onclick="closePdfReader()">×</button></div><div id="pdfReaderError" class="pdfReaderError" hidden></div><div class="pdfCanvasWrap" id="pdfCanvasWrap"><canvas id="pdfCanvas"></canvas></div><div class="pdfReaderControls"><button type="button" class="secondary" id="pdfPrev">Previous</button><span id="pdfPageLabel" class="pdfPageLabel">Page — / —</span><button type="button" class="secondary" id="pdfNext">Next</button></div><div class="pdfProgressRow"><span>Reading progress</span><span id="pdfReaderProgressText">0 / 0 pages</span></div><input id="pdfReaderProgress" class="pdfProgress" type="range" min="0" max="0" value="0" aria-label="PDF reading progress"></div></div>
 <div id="detailModal" class="modal" onclick="if(event.target===this)closeModal('detailModal')"><div class="sheet">
 <div class="sheetTop"><h2>Book</h2><button class="close" onclick="closeModal('detailModal')">×</button></div>
 <div id="detailContent"></div>
@@ -177,6 +207,8 @@ label{font-size:11px;margin:11px 0 6px}input,textarea,select{padding:10px;border
 <div class="sheetTop"><h2>Add to the shelves</h2><button class="close" onclick="closeModal('addModal')">×</button></div>
 <form id="bookForm">
 <label>Book cover</label><input class="file" id="cover" type="file" accept="image/*">
+<label>PDF book file (optional)</label><input class="file" id="bookPdf" type="file" accept="application/pdf,.pdf">
+<div id="addPdfPreview" class="pdfAttach" hidden><div class="pdfAttachTop"><div class="pdfBadge">PDF</div><div class="pdfFileInfo"><strong id="addPdfName"></strong><small id="addPdfSize"></small></div><button class="pdfReplace" type="button" onclick="$('bookPdf').click()">Change</button></div></div>
 <div class="row"><div><label>Title</label><input id="title" required></div><div><label>Author</label><input id="author"></div></div>
 <div class="addControls"><div id="addStatusEditor" class="statusEditor"><label id="addStatusLabel">Status</label><button id="addStatusTrigger" class="statusTrigger" type="button" aria-labelledby="addStatusLabel addStatusTrigger" aria-expanded="false" aria-controls="addStatusMenu" onclick="toggleAddStatusMenu()"><span id="addStatusText">Want to Read</span><svg class="statusChevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 7 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div id="addStatusMenu" class="statusMenu" inert><div id="addStatusChoices" class="statusChoices"></div></div></div><div><label id="addRatingLabel">Rating (optional)</label><div class="ratingControl"><div id="addRatingPicker" class="starPicker" role="slider" tabindex="0" aria-labelledby="addRatingLabel" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0" aria-valuetext="No rating"><span class="starGlyph" aria-hidden="true">★</span><span class="starGlyph" aria-hidden="true">★</span><span class="starGlyph" aria-hidden="true">★</span><span class="starGlyph" aria-hidden="true">★</span><span class="starGlyph" aria-hidden="true">★</span></div><button type="button" class="ratingClear" aria-label="Clear rating" onclick="setAddRating(0)">×</button></div></div></div>
 <label>Your note — the place to scream about the book</label><textarea id="note" placeholder="Write whatever this book did to you…"></textarea>
@@ -257,13 +289,15 @@ function closeModal(id){$(id).classList.remove("open");}
 $("bookForm").addEventListener("submit",async e=>{
  e.preventDefault();
  const file=$("cover").files[0];
- let cover="";
+ let cover="",pendingPdfId="";
  try {
  if(file) cover=await compressedArt(file);
  const art=await compressedArt($("songArt").files[0]);
- const newBook={id:crypto.randomUUID(),title:$("title").value.trim(),author:$("author").value.trim(),status:addStatus,rating:addRating,note:$("note").value.trim(),songTitle:$("songTitle").value.trim(),songArtist:$("songArtist").value.trim(),songLink:safeSongLink($("songLink").value),songArt:art,cover,created:new Date().toISOString()};
- const next=[newBook,...books];try{books=await persistBooks(next);e.target.reset();addStatus=STATUSES[0];setAddRating(0);toggleAddStatusMenu(false);renderAddStatusMenu();closeModal("addModal");render()}catch(err){alert("Could not save this book. Try a smaller cover or cassette image.")}
- }catch(err){alert("Could not read this image. Choose another image; your library is unchanged.")}
+ const pdfFile=$("bookPdf").files[0];
+ const pdfTotal=pdfFile?await inspectPdf(pdfFile):0;
+ const newBook={id:crypto.randomUUID(),title:$("title").value.trim(),author:$("author").value.trim(),status:addStatus,rating:addRating,note:$("note").value.trim(),songTitle:$("songTitle").value.trim(),songArtist:$("songArtist").value.trim(),songLink:safeSongLink($("songLink").value),songArt:art,cover,created:new Date().toISOString(),pdfName:pdfFile?pdfFile.name:"",pdfSize:pdfFile?pdfFile.size:0,pdfPage:0,pdfTotal};
+ const next=[newBook,...books];try{if(pdfFile){pendingPdfId=newBook.id;await libraryStorage.setPDF(newBook.id,pdfFile);}books=await persistBooks(next);e.target.reset();$("addPdfPreview").hidden=true;addStatus=STATUSES[0];setAddRating(0);toggleAddStatusMenu(false);renderAddStatusMenu();closeModal("addModal");render()  }catch(err){if(pendingPdfId)try{await libraryStorage.deletePDF(pendingPdfId)}catch{}alert("Could not save this book or its PDF. Check available device storage; your existing library is unchanged.")}
+ }catch(err){alert(`Could not read the selected image or PDF: ${err.message||"choose another file"}. Your existing library is unchanged.`)}
 });
 function tint(rgb,amount){const base=[16,13,22];return `rgb(${rgb.map((c,i)=>Math.round(c*amount+base[i]*(1-amount))).join(",")})`}
 function colorDistance(a,b){return Math.hypot(...a.map((v,i)=>v-b[i]))}
@@ -298,7 +332,7 @@ function paintCassetteFromArt(img){
 function openDetail(id){
  const b=books.find(x=>x.id===id); if(!b)return;
  const link=safeSongLink(b.songLink||"");
- $("detailContent").innerHTML=`<div class="detail"><button type="button" class="cover detailCover" aria-label="${b.cover?"View":"Add"} cover for ${esc(b.title)}" onclick="coverAction('${b.id}')">${b.cover?`<img src="${esc(b.cover)}" alt="">`:`<div class="coverPlaceholder">${esc(b.title)}</div>`}</button><div class="meta"><div class="metaTitle"><h3>${esc(b.title)}</h3><button type="button" class="titleEdit" aria-label="Edit book details for ${esc(b.title)}" onclick="editBookTitle('${b.id}')">✎</button></div><p>${esc(b.author||"Unknown author")}</p><div class="statusEditor"><label id="statusLabel">Reading status</label><button id="detailStatus" class="statusTrigger" type="button" aria-labelledby="statusLabel detailStatus" aria-expanded="false" aria-controls="statusChoices" onclick="toggleStatusMenu()"><span>${esc(b.status||STATUSES[0])}</span><svg class="statusChevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 7 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div id="statusChoices" class="statusMenu" inert><div class="statusChoices">${STATUSES.filter(status=>status!==b.status).map(status=>`<button type="button" class="statusChoice" onclick="updateStatus('${b.id}','${status}')">${status}</button>`).join("")}</div></div></div><div class="stars" style="margin-top:12px">${stars(b.rating)}</div></div></div><div class="cassetteFlip" tabindex="0" role="group" aria-label="Book cassette, Side A. Swipe or use arrow keys to flip."><div class="cassetteFaces"><div class="cassette cassetteSideA ${b.songTitle?"hasSong":""}"><div class="cassetteTop"><span>✦ Book soundtrack</span><button type="button" class="cassetteSideLabel" data-flip-cassette aria-label="Flip to Side B">Side A</button></div><div class="cassetteWindow">${b.songArt?`<img class="cassetteArt" src="${esc(b.songArt)}" alt="">`:""}<span class="reel"></span><span class="reel"></span></div><div class="cassetteTitle">${esc(b.songTitle||"No song chosen yet")}</div><div class="cassetteArtist">${esc(b.songArtist||"")}</div>${link?`<a data-requires-online href="${esc(link)}" target="_blank" rel="noopener noreferrer">Listen ↗</a>`:""}</div><div class="cassette cassetteSideB ${b.songTitle?"hasSong":""}">${b.songArt?`<img class="cassetteBackdrop" src="${esc(b.songArt)}" alt="">`:""}<div class="cassetteTop"><span>✦ Book soundtrack</span><button type="button" class="cassetteSideLabel" data-flip-cassette aria-label="Flip to Side A">Side B</button></div><div class="cassetteWindow">${b.songArt?`<img class="cassetteArt" src="${esc(b.songArt)}" alt="">`:""}<span class="reel"></span><span class="reel"></span></div><div class="cassetteTitle">${esc(b.songTitle||"No song chosen yet")}</div><div class="cassetteArtist">${esc(b.songArtist||"")}</div>${link?`<a data-requires-online href="${esc(link)}" target="_blank" rel="noopener noreferrer">Listen ↗</a>`:""}</div></div><span class="cassetteSwipeHint" aria-hidden="true">Swipe to turn · A / B</span></div><button class="secondary" onclick="editSong('${b.id}')">${b.songTitle?"Edit song":"Add a song"}</button><div class="note noteEditable" role="button" tabindex="0" aria-label="Edit Cause of death for ${esc(b.title)}" onclick="editNote('${b.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();editNote('${b.id}')}"><div class="noteLabel">Cause of death <span class="noteHint" aria-hidden="true">✎</span></div><div class="noteText" ${b.note?"":'style="color:var(--muted)"'}>${b.note?esc(b.note):"Tap to write what this book did to you…"}</div></div><button class="secondary" onclick="deleteBook('${b.id}')">Remove from library</button>`;
+ $("detailContent").innerHTML=`<div class="detail"><button type="button" class="cover detailCover" aria-label="${b.cover?"View":"Add"} cover for ${esc(b.title)}" onclick="coverAction('${b.id}')">${b.cover?`<img src="${esc(b.cover)}" alt="">`:`<div class="coverPlaceholder">${esc(b.title)}</div>`}</button><div class="meta"><div class="metaTitle"><h3>${esc(b.title)}</h3><button type="button" class="titleEdit" aria-label="Edit book details for ${esc(b.title)}" onclick="editBookTitle('${b.id}')">✎</button></div><p>${esc(b.author||"Unknown author")}</p><div class="statusEditor"><label id="statusLabel">Reading status</label><button id="detailStatus" class="statusTrigger" type="button" aria-labelledby="statusLabel detailStatus" aria-expanded="false" aria-controls="statusChoices" onclick="toggleStatusMenu()"><span>${esc(b.status||STATUSES[0])}</span><svg class="statusChevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m4 7 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button><div id="statusChoices" class="statusMenu" inert><div class="statusChoices">${STATUSES.filter(status=>status!==b.status).map(status=>`<button type="button" class="statusChoice" onclick="updateStatus('${b.id}','${status}')">${status}</button>`).join("")}</div></div></div><div class="stars" style="margin-top:12px">${stars(b.rating)}</div></div></div><div class="cassetteFlip" tabindex="0" role="group" aria-label="Book cassette, Side A. Swipe or use arrow keys to flip."><div class="cassetteFaces"><div class="cassette cassetteSideA ${b.songTitle?"hasSong":""}"><div class="cassetteTop"><span>✦ Book soundtrack</span><button type="button" class="cassetteSideLabel" data-flip-cassette aria-label="Flip to Side B">Side A</button></div><div class="cassetteWindow">${b.songArt?`<img class="cassetteArt" src="${esc(b.songArt)}" alt="">`:""}<span class="reel"></span><span class="reel"></span></div><div class="cassetteTitle">${esc(b.songTitle||"No song chosen yet")}</div><div class="cassetteArtist">${esc(b.songArtist||"")}</div>${link?`<a data-requires-online href="${esc(link)}" target="_blank" rel="noopener noreferrer">Listen ↗</a>`:""}</div><div class="cassette cassetteSideB ${b.songTitle?"hasSong":""}">${b.songArt?`<img class="cassetteBackdrop" src="${esc(b.songArt)}" alt="">`:""}<div class="cassetteTop"><span>✦ Book soundtrack</span><button type="button" class="cassetteSideLabel" data-flip-cassette aria-label="Flip to Side A">Side B</button></div><div class="cassetteWindow">${b.songArt?`<img class="cassetteArt" src="${esc(b.songArt)}" alt="">`:""}<span class="reel"></span><span class="reel"></span></div><div class="cassetteTitle">${esc(b.songTitle||"No song chosen yet")}</div><div class="cassetteArtist">${esc(b.songArtist||"")}</div>${link?`<a data-requires-online href="${esc(link)}" target="_blank" rel="noopener noreferrer">Listen ↗</a>`:""}</div></div><span class="cassetteSwipeHint" aria-hidden="true">Swipe to turn · A / B</span></div><button class="secondary" onclick="editSong('${b.id}')">${b.songTitle?"Edit song":"Add a song"}</button><div class="note noteEditable" role="button" tabindex="0" aria-label="Edit Cause of death for ${esc(b.title)}" onclick="editNote('${b.id}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();editNote('${b.id}')}"><div class="noteLabel">Cause of death <span class="noteHint" aria-hidden="true">✎</span></div><div class="noteText" ${b.note?"":'style="color:var(--muted)"'}>${b.note?esc(b.note):"Tap to write what this book did to you…"}</div></div>${pdfCardHTML(b)}<button class="secondary" onclick="deleteBook('${b.id}')">Remove from library</button>`;
  $("detailModal").classList.add("open");
  window.setupCassetteFlip?.($("detailContent").querySelector(".cassetteFlip"));
  const art=$("detailContent").querySelector(".cassetteSideA .cassetteArt");if(art){if(art.complete)paintCassetteFromArt(art);else art.addEventListener("load",()=>paintCassetteFromArt(art),{once:true})}
@@ -318,8 +352,15 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){toggleStatusMenu(fa
 async function updateStatus(id,status){if(!STATUSES.includes(status))return;const current=books.find(b=>b.id===id);if(!current)return;const next=books.map(b=>b.id===id?{...b,status}:b);try{books=await persistBooks(next);render();openDetail(id)}catch(e){alert("Could not save the new status. Your book has not changed.");openDetail(id)}}
 function editSong(id){const b=books.find(x=>x.id===id);if(!b)return;$("songBookId").value=id;$("editSongTitle").value=b.songTitle||"";$("editSongArtist").value=b.songArtist||"";$("editSongLink").value=b.songLink||"";$("editSongArt").value="";$("removeSongArt").checked=false;$("songModal").classList.add("open")}
 $("songForm").addEventListener("submit",async e=>{e.preventDefault();const b=books.find(x=>x.id===$("songBookId").value);if(!b)return;try{const art=$("editSongArt").files[0]?await compressedArt($("editSongArt").files[0]):($("removeSongArt").checked?"":b.songArt||"");const changes={songTitle:$("editSongTitle").value.trim(),songArtist:$("editSongArtist").value.trim(),songLink:safeSongLink($("editSongLink").value),songArt:art};const next=books.map(x=>x.id===b.id?{...x,...changes}:x);books=await persistBooks(next);closeModal("songModal");openDetail(b.id)}catch(e){alert("Could not save this image. Try a smaller one or download a backup before freeing browser storage.")}});
-async function exportLibrary(){if(!libraryReady){await downloadRecovery();return;}try{const bytes=await readFontBytes();const preferences={collapsedShelves:[...collapsedShelves]};if(bytes)preferences.font=encodeFont(bytes);downloadJSON({format:"my-little-library-v1",exportedAt:new Date().toISOString(),books,preferences},"my-little-library-backup.json");}catch(e){downloadJSON({format:"my-little-library-v1",exportedAt:new Date().toISOString(),books},"my-little-library-backup.json");alert("Books backed up. The custom font could not be read.")}}
-async function importLibrary(input){const file=input.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.format!=="my-little-library-v1")throw Error("Invalid backup");const next=libraryStorage.validate(data.books);let fontBytes=null,face=null;if(data.preferences?.font){fontBytes=decodeFont(data.preferences.font);face=new FontFace("EloraLocal",fontBytes,{weight:"700"});await face.load();}let shelves=null;if(data.preferences?.collapsedShelves){shelves=data.preferences.collapsedShelves;if(!Array.isArray(shelves)||shelves.some(i=>!Number.isInteger(i)||i<0||i>2))throw Error("Invalid shelf settings");}if(!confirm(`Restore ${next.length} books? Current books on this device will be replaced. Download a backup first if you want to keep them.`))return;books=await persistBooks(next,true);libraryReady=true;$("recoveryBox").hidden=true;$("addFab").disabled=false;render();try{if(fontBytes){await storeFontBytes(fontBytes);setLocalFontFace(face);}if(shelves){localStorage.setItem(SHELF_KEY,JSON.stringify(shelves));collapsedShelves.clear();shelves.forEach(i=>collapsedShelves.add(i));render();}}catch(e){alert("Books restored. Some appearance settings could not be restored.");return;}$("storageStatus").textContent="Library restored on this device";alert("Library restored.");}catch(e){alert("Could not restore this backup. Check the file or available device storage. Your previous library has not been replaced.");}finally{input.value=""}}
+async function exportLibrary(){
+ if(!libraryReady){await downloadRecovery();return;}
+ const preferences={collapsedShelves:[...collapsedShelves]};
+ try{const bytes=await readFontBytes();if(bytes)preferences.font=encodeFont(bytes);}catch(e){alert("The custom font could not be included in the backup. The backup will continue without that font.");}
+ let pdfs;
+ try{pdfs=await libraryStorage.exportPDFs();}catch(e){alert("Backup cancelled: one or more saved PDF files could not be read. Your current library was not changed.");return;}
+ downloadJSON({format:"my-little-library-v1",exportedAt:new Date().toISOString(),books,pdfs,preferences},"my-little-library-backup.json");
+}
+async function importLibrary(input){const file=input.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.format!=="my-little-library-v1")throw Error("Invalid backup");const next=libraryStorage.validate(data.books);if(data.pdfs!=null&&!Array.isArray(data.pdfs))throw Error("Invalid PDF backup");if(data.pdfs){const ids=new Set();for(const entry of data.pdfs){if(!Array.isArray(entry)||typeof entry[0]!=="string"||!entry[1]?.data?.startsWith("data:application/pdf;base64,")||ids.has(entry[0])||!next.some(b=>b.id===entry[0]))throw Error("Invalid PDF backup entry");ids.add(entry[0]);const encoded=entry[1].data.slice(entry[1].data.indexOf(",")+1);if(encoded.length*0.75>100*1024*1024+3)throw Error("A PDF in this backup exceeds the 100 MB limit.");}}let fontBytes=null,face=null;if(data.preferences?.font){fontBytes=decodeFont(data.preferences.font);face=new FontFace("EloraLocal",fontBytes,{weight:"700"});await face.load();}let shelves=null;if(data.preferences?.collapsedShelves){shelves=data.preferences.collapsedShelves;if(!Array.isArray(shelves)||shelves.some(i=>!Number.isInteger(i)||i<0||i>2))throw Error("Invalid shelf settings");}if(!confirm(`Restore ${next.length} books? Current books on this device will be replaced. Download a backup first if you want to keep them.`))return;books=await persistBooks(next,true);await libraryStorage.importPDFs(data.pdfs||[]);libraryReady=true;$("recoveryBox").hidden=true;$("addFab").disabled=false;render();try{if(fontBytes){await storeFontBytes(fontBytes);setLocalFontFace(face);}if(shelves){localStorage.setItem(SHELF_KEY,JSON.stringify(shelves));collapsedShelves.clear();shelves.forEach(i=>collapsedShelves.add(i));render();}}catch(e){alert("Books restored. Some appearance settings could not be restored.");return;}$("storageStatus").textContent="Library restored on this device";alert("Library restored.");}catch(e){alert("Could not restore this backup. Check the file or available device storage. Your previous library has not been replaced.");}finally{input.value=""}}
 const FONT_DB="little-library-display-font-v1";
 function fontDatabase(){return new Promise((resolve,reject)=>{const request=indexedDB.open(FONT_DB,1);request.onupgradeneeded=()=>request.result.createObjectStore("fonts");request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})}
 function setLocalFontFace(face){for(const old of document.fonts)if(old.family==="EloraLocal")document.fonts.delete(old);document.fonts.add(face);document.body.classList.add("hasLocalDisplayFont")}
@@ -332,6 +373,118 @@ async function loadLocalTitleFont(){try{const db=await fontDatabase();const byte
 async function importTitleFont(input){const file=input.files[0];input.value="";if(!file)return;if(!/\.(otf|ttf)$/i.test(file.name)){alert("Choose an OTF or TTF font file.");return;}try{const bytes=await file.arrayBuffer(),face=new FontFace("EloraLocal",bytes,{weight:"700"});await face.load();await storeFontBytes(bytes);setLocalFontFace(face);alert("Title font saved on this device.")}catch(error){alert("Could not save this font on your device. Please try again.")}}
 loadLocalTitleFont();
 async function deleteBook(id){if(confirm("Remove this book from your library?")){try{books=await persistBooks(books.filter(b=>b.id!==id));closeModal("detailModal");render();}catch(e){alert("Could not delete this book. Your library is unchanged.")}}}
+
+let pdfJsPromise=null, activePdfDoc=null, activePdfBookId=null, activePdfPage=1, pdfRenderTask=null, pdfSaveTimer=null;
+async function getPdfJs(){
+ if(!pdfJsPromise){
+  pdfJsPromise=import("./pdfjs/pdf.mjs").then(mod=>{
+   mod.GlobalWorkerOptions.workerSrc=new URL("./pdfjs/pdf.worker.mjs",new URL("./",location.href)).href;
+   return mod;
+  }).catch(err=>{pdfJsPromise=null;throw err;});
+ }
+ return pdfJsPromise;
+}
+function readableBytes(n){if(!n)return "PDF file";const units=["B","KB","MB","GB"];let i=0,v=n;while(v>=1024&&i<units.length-1){v/=1024;i++}return `${v.toFixed(i?1:0)} ${units[i]}`}
+async function inspectPdf(file){
+ if(!file || (!/\.pdf$/i.test(file.name) && file.type!=="application/pdf")) throw Error("Choose a PDF file.");
+ if(file.size>100*1024*1024) throw Error("This app currently supports PDF files up to 100 MB.");
+ const head=new Uint8Array(await file.slice(0,5).arrayBuffer());
+ if(String.fromCharCode(...head)!=="%PDF-") throw Error("This file does not look like a valid PDF.");
+ const pdfjs=await getPdfJs();
+ const task=pdfjs.getDocument({data:new Uint8Array(await file.arrayBuffer())});
+ const doc=await task.promise;const pages=doc.numPages;await doc.destroy();
+ if(!Number.isInteger(pages)||pages<1)throw Error("Could not read the PDF page count.");
+ return pages;
+}
+function pdfCardHTML(b){
+ const has=Boolean(b.pdfName);
+ const total=Number(b.pdfTotal)||0,page=Math.min(Number(b.pdfPage)||0,total||Number(b.pdfPage)||0);
+ const percent=total?Math.max(0,Math.min(100,page/total*100)):0;
+ return `<div class="pdfAttach"><div class="pdfAttachTop"><div class="pdfBadge">PDF</div><div class="pdfFileInfo"><strong>${has?esc(b.pdfName):"No PDF attached"}</strong><small>${has?`${readableBytes(Number(b.pdfSize)||0)}${total?` · ${total} pages`:""}`:"Attach a PDF to read this book here, even offline."}</small></div></div>${has?`<div class="pdfActions"><button class="primary" type="button" onclick="openPdfReader('${b.id}')">${page>0?"Continue reading":"Start reading"}</button><button class="pdfReplace" type="button" onclick="$('replacePdf-${b.id}').click()">Change PDF</button><input class="pdfHiddenInput" id="replacePdf-${b.id}" type="file" accept="application/pdf,.pdf" onchange="replaceBookPdf('${b.id}',this)"></div><div class="pdfProgressRow"><span>Reading progress</span><span>${page} / ${total||"—"} pages</span></div><input class="pdfProgress" type="range" min="0" max="${Math.max(1,total)}" value="${page}" disabled aria-label="Reading progress for ${esc(b.title)}">`:`<div class="pdfActions"><button class="secondary" type="button" onclick="$('replacePdf-${b.id}').click()">Choose PDF</button><input class="pdfHiddenInput" id="replacePdf-${b.id}" type="file" accept="application/pdf,.pdf" onchange="replaceBookPdf('${b.id}',this)"></div>`}</div>`;
+}
+$("bookPdf").addEventListener("change",()=>{
+ const f=$("bookPdf").files[0],box=$("addPdfPreview");
+ if(!f){box.hidden=true;return;}
+ $("addPdfName").textContent=f.name;$("addPdfSize").textContent=readableBytes(f.size);box.hidden=false;
+});
+async function replaceBookPdf(id,input){
+ const file=input.files?.[0];if(!file)return;
+ const old=books.find(b=>b.id===id);if(!old){input.value="";return;}
+ let oldBlob=null,storedNew=false;
+ try{
+  const total=await inspectPdf(file);
+  oldBlob=await libraryStorage.getPDF(id);
+  await libraryStorage.setPDF(id,file);storedNew=true;
+  const next=books.map(b=>b.id===id?{...b,pdfName:file.name,pdfSize:file.size,pdfPage:0,pdfTotal:total}:b);
+  books=await persistBooks(next);
+  openDetail(id);
+ }catch(err){
+  if(storedNew)try{if(oldBlob)await libraryStorage.setPDF(id,oldBlob);else await libraryStorage.deletePDF(id)}catch{}
+  alert(`Could not attach this PDF: ${err.message||"unknown error"}. The previous PDF is preserved when storage allows rollback.`);
+ }
+ finally{input.value="";}
+}
+async function openPdfReader(id){
+ const b=books.find(x=>x.id===id);if(!b?.pdfName){alert("Attach a PDF to this book first.");return;}
+ $("pdfReaderModal").classList.add("open");$("pdfReaderName").textContent=b.pdfName;$("pdfReaderError").hidden=true;$("pdfCanvasWrap").hidden=false;
+ $("pdfPageLabel").textContent="Opening PDF…";$("pdfPrev").disabled=true;$("pdfNext").disabled=true;
+ activePdfBookId=id;activePdfPage=Math.max(1,Math.min(Number(b.pdfPage)||1,Number(b.pdfTotal)||1));
+ try{
+  if(activePdfDoc){await activePdfDoc.destroy();activePdfDoc=null;}
+  const blob=await libraryStorage.getPDF(id);if(!blob)throw Error("The saved PDF file is missing. Reattach it from this device.");
+  const pdfjs=await getPdfJs(),task=pdfjs.getDocument({data:new Uint8Array(await blob.arrayBuffer())});
+  activePdfDoc=await task.promise;
+  if(!activePdfDoc.numPages)throw Error("This PDF contains no readable pages.");
+  activePdfPage=Math.max(1,Math.min(Number(b.pdfPage)||1,activePdfDoc.numPages));
+  $("pdfReaderProgress").max=activePdfDoc.numPages;$("pdfReaderProgress").value=Number(b.pdfPage)||0;
+  $("pdfReaderProgressText").textContent=`${Number(b.pdfPage)||0} / ${activePdfDoc.numPages} pages`;
+  $("pdfPageLabel").textContent=`Page ${activePdfPage} / ${activePdfDoc.numPages}`;
+  $("pdfPrev").disabled=false;$("pdfNext").disabled=false;
+  await renderPdfPage(activePdfPage);
+  await savePdfProgress(id,activePdfPage,activePdfDoc.numPages);
+ }catch(err){
+  $("pdfCanvasWrap").hidden=true;$("pdfReaderError").hidden=false;$("pdfReaderError").textContent=`Could not open this PDF. ${err.message||"Check that the file is valid."}`;
+  $("pdfPageLabel").textContent="PDF unavailable";$("pdfPrev").disabled=true;$("pdfNext").disabled=true;
+ }
+}
+async function renderPdfPage(pageNum){
+ if(!activePdfDoc)return;
+ if(pdfRenderTask){try{pdfRenderTask.cancel()}catch{}pdfRenderTask=null;}
+ const page=await activePdfDoc.getPage(pageNum),canvas=$("pdfCanvas"),wrap=$("pdfCanvasWrap"),base=page.getViewport({scale:1});
+ const scale=Math.max(.35,Math.min(1.6,(wrap.clientWidth-24)/base.width)),viewport=page.getViewport({scale}),dpr=Math.min(window.devicePixelRatio||1,2),ctx=canvas.getContext("2d");
+ canvas.width=Math.floor(viewport.width*dpr);canvas.height=Math.floor(viewport.height*dpr);canvas.style.width=`${viewport.width}px`;canvas.style.height=`${viewport.height}px`;
+ pdfRenderTask=page.render({canvasContext:ctx,viewport,transform:dpr!==1?[dpr,0,0,dpr,0,0]:null});
+ try{await pdfRenderTask.promise;}finally{pdfRenderTask=null;}
+ $("pdfPageLabel").textContent=`Page ${pageNum} / ${activePdfDoc.numPages}`;
+ $("pdfPrev").disabled=pageNum<=1;$("pdfNext").disabled=pageNum>=activePdfDoc.numPages;
+ $("pdfReaderProgress").max=activePdfDoc.numPages;$("pdfReaderProgress").value=pageNum;
+ $("pdfReaderProgressText").textContent=`${pageNum} / ${activePdfDoc.numPages} pages`;
+}
+async function changePdfPage(next){
+ if(!activePdfDoc)return;
+ const page=Math.max(1,Math.min(activePdfDoc.numPages,next));if(page===activePdfPage)return;
+ activePdfPage=page;
+ try{await renderPdfPage(page);schedulePdfProgressSave(activePdfBookId,page,activePdfDoc.numPages);}catch(err){if(err?.name!=="RenderingCancelledException")console.error(err);}
+}
+function schedulePdfProgressSave(id,page,total){
+ clearTimeout(pdfSaveTimer);pdfSaveTimer=setTimeout(()=>savePdfProgress(id,page,total),450);
+}
+async function savePdfProgress(id,page,total){
+ if(!id)return;
+ const next=books.map(b=>b.id===id?{...b,pdfPage:page,pdfTotal:total}:b);
+ try{books=await persistBooks(next);}catch(err){console.warn("Could not save PDF progress",err);}
+}
+$("pdfPrev").addEventListener("click",()=>changePdfPage(activePdfPage-1));
+$("pdfNext").addEventListener("click",()=>changePdfPage(activePdfPage+1));
+$("pdfReaderProgress").addEventListener("input",e=>{const n=Number(e.target.value);if(n<1){e.target.value=activePdfPage;return;}changePdfPage(n);});
+async function closePdfReader(){
+ clearTimeout(pdfSaveTimer);if(activePdfBookId&&activePdfDoc)await savePdfProgress(activePdfBookId,activePdfPage,activePdfDoc.numPages);
+ $("pdfReaderModal").classList.remove("open");
+ if(activePdfDoc){try{await activePdfDoc.destroy()}catch{}activePdfDoc=null;}
+ const id=activePdfBookId;activePdfBookId=null;
+ if(id&&$("detailModal").classList.contains("open"))openDetail(id);
+}
+
 initializeLibrary();
 </script>
 <script src="./drag.js"></script>

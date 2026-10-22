@@ -9,12 +9,16 @@ window.libraryStorage = (() => {
     return input.map(b => {
       if (!b || typeof b !== 'object' || Array.isArray(b) || typeof b.id !== 'string' || !/^[\w-]{1,128}$/.test(b.id) || ids.has(b.id) || typeof b.title !== 'string' || !b.title.trim()) throw Error('Invalid or duplicate book.');
       ids.add(b.id); const book = {...b};
-      for (const key of ['author','note','songTitle','songArtist','songLink','cover','songArt','created']) {
+      for (const key of ['author','note','songTitle','songArtist','songLink','cover','songArt','created','pdfName']) {
         if (book[key] == null) book[key] = '';
         if (typeof book[key] !== 'string') throw Error('Invalid '+key+'.');
       }
       for (const key of ['cover','songArt']) if (book[key] && !/^data:image\/(?:png|jpeg|jpg|webp|gif|avif|svg\+xml|bmp);base64,/i.test(book[key]) && !/^https?:\/\//i.test(book[key])) throw Error('Invalid image.');
       if (book.songLink && !/^https?:\/\//i.test(book.songLink)) throw Error('Invalid song link.');
+      book.pdfSize = Number.isFinite(Number(book.pdfSize)) && Number(book.pdfSize)>=0 ? Number(book.pdfSize) : 0;
+      book.pdfPage = Number.isInteger(Number(book.pdfPage)) && Number(book.pdfPage)>=0 ? Number(book.pdfPage) : 0;
+      book.pdfTotal = Number.isInteger(Number(book.pdfTotal)) && Number(book.pdfTotal)>=0 ? Number(book.pdfTotal) : 0;
+      if(book.pdfName && (book.pdfName.length>255 || /[\\\\/]/.test(book.pdfName))) throw Error('Invalid PDF name.');
       book.status = statuses.includes(book.status) ? book.status : statuses[0];
       book.rating = Number(book.rating || 0);
       if (!Number.isFinite(book.rating) || book.rating < 0 || book.rating > 5 || book.rating*2 % 1) throw Error('Invalid rating.');
@@ -23,8 +27,14 @@ window.libraryStorage = (() => {
   }
   function open() {
     return new Promise((resolve,reject) => {
-      const r = indexedDB.open(DB,1);
-      r.onupgradeneeded = () => {r.result.createObjectStore('books',{keyPath:'id'});r.result.createObjectStore('images');r.result.createObjectStore('meta');};
+      const r = indexedDB.open(DB,2);
+      r.onupgradeneeded = () => {
+        const d=r.result;
+        if(!d.objectStoreNames.contains('books')) d.createObjectStore('books',{keyPath:'id'});
+        if(!d.objectStoreNames.contains('images')) d.createObjectStore('images');
+        if(!d.objectStoreNames.contains('meta')) d.createObjectStore('meta');
+        if(!d.objectStoreNames.contains('pdfs')) d.createObjectStore('pdfs');
+      };
       r.onsuccess = () => {db=r.result;db.onversionchange=()=>db.close();resolve(db);};
       r.onerror = () => reject(r.error);r.onblocked=()=>reject(Error('Close other library tabs and retry.'));
     });
@@ -48,9 +58,9 @@ window.libraryStorage = (() => {
       return {record,assets,original:b};
     });
     await new Promise((resolve,reject)=>{
-      const tx=db.transaction(['books','images','meta'],'readwrite'),bs=tx.objectStore('books'),im=tx.objectStore('images'),ms=tx.objectStore('meta'),ids=new Set(list.map(b=>b.id));
-      if(recovery){ms.put(recovery,'recoverySnapshot-'+Date.now());bs.clear();im.clear();}
-      for(const b of previous)if(!ids.has(b.id)){bs.delete(b.id);im.delete(b.id+':cover');im.delete(b.id+':songArt');}
+      const tx=db.transaction(['books','images','meta','pdfs'],'readwrite'),bs=tx.objectStore('books'),im=tx.objectStore('images'),ms=tx.objectStore('meta'),pdfs=tx.objectStore('pdfs'),ids=new Set(list.map(b=>b.id));
+      if(recovery){ms.put(recovery,'recoverySnapshot-'+Date.now());bs.clear();im.clear();pdfs.clear();}
+      for(const b of previous)if(!ids.has(b.id)){bs.delete(b.id);im.delete(b.id+':cover');im.delete(b.id+':songArt');pdfs.delete(b.id);}
       for(const {record,assets,original} of prepared){if(JSON.stringify(old.get(record.id))!==JSON.stringify(original))bs.put(record);for(const [key,blob]of assets)im.put(blob,key);for(const key of ['cover','songArt'])if(!original[key].startsWith('data:'))im.delete(record.id+':'+key);}
       ms.put(list.map(b=>b.id),'order');ms.put(2,'schema');
       if(raw!=null)ms.put(raw,'legacySnapshot');
@@ -77,7 +87,7 @@ window.libraryStorage = (() => {
     if(busy)throw Error('Another save is in progress. Please try again.');
     const list=validate(input);busy=true;
     try{
-      if(mode==='indexeddb'){const recovery=locked&&restore?await Promise.all([readStore('books'),readStore('images'),readStore('meta')]):null;await write(list,locked?rawLegacy():undefined,recovery);}
+      if(mode==='indexeddb'){const recovery=locked&&restore?await Promise.all([readStore('books'),readStore('images'),readStore('meta'),readStore('pdfs')]):null;await write(list,locked?rawLegacy():undefined,recovery);}
       else if(mode==='localstorage'){
         // A damaged legacy value must survive explicit recovery too.
         if(locked){const raw=localStorage.getItem(LEGACY);if(raw!=null)localStorage.setItem(LEGACY+'-recovery-'+Date.now(),raw);}
@@ -87,7 +97,37 @@ window.libraryStorage = (() => {
     }finally{busy=false;}
   }
   async function recoveryValue(value){if(value instanceof Blob)return {type:'blob',mime:value.type,data:await dataURL(value)};if(value instanceof Map)return {type:'map',entries:await Promise.all([...value].map(async([k,v])=>[k,await recoveryValue(v)]))};if(Array.isArray(value))return Promise.all(value.map(recoveryValue));if(value&&typeof value==='object'){const out={};for(const [k,v]of Object.entries(value))out[k]=await recoveryValue(v);return out;}return value;}
-  async function recoveryExport(){const result={format:'my-little-library-recovery',legacy:rawLegacy()};if(db){for(const store of ['books','images','meta']){const entries=await readStore(store);result[store]=await Promise.all([...entries].map(async([key,value])=>[key,await recoveryValue(value)]));}}return result;}
+  async function recoveryExport(){const result={format:'my-little-library-recovery',legacy:rawLegacy()};if(db){for(const store of ['books','images','meta','pdfs']){const entries=await readStore(store);result[store]=await Promise.all([...entries].map(async([key,value])=>[key,await recoveryValue(value)]));}}return result;}
+  async function setPDF(id, blob) {
+    if(!db || mode!=='indexeddb') throw Error('PDF storage requires IndexedDB.');
+    if(!(blob instanceof Blob) || (blob.type && blob.type!=='application/pdf')) throw Error('Invalid PDF file.');
+    if(blob.size>100*1024*1024) throw Error('PDF is larger than the 100 MB app limit.');
+    await new Promise((resolve,reject)=>{const tx=db.transaction('pdfs','readwrite');tx.objectStore('pdfs').put(blob,id);tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error||Error('Could not save PDF.'));tx.onerror=()=>reject(tx.error);});
+  }
+  async function getPDF(id) {
+    if(!db || mode!=='indexeddb') return null;
+    return new Promise((resolve,reject)=>{const tx=db.transaction('pdfs','readonly'),r=tx.objectStore('pdfs').get(id);r.onsuccess=()=>resolve(r.result instanceof Blob?r.result:null);r.onerror=()=>reject(r.error);});
+  }
+  async function deletePDF(id) {
+    if(!db || mode!=='indexeddb') return;
+    await new Promise((resolve,reject)=>{const tx=db.transaction('pdfs','readwrite');tx.objectStore('pdfs').delete(id);tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error);tx.onerror=()=>reject(tx.error);});
+  }
+  async function exportPDFs() {
+    if(!db || mode!=='indexeddb') return [];
+    const entries=await readStore('pdfs');
+    return await Promise.all([...entries].map(async([id,blob])=>[id,blob instanceof Blob?{name:blob.name||'',type:blob.type||'application/pdf',data:await dataURL(blob)}:null]).filter(x=>x[1]));
+  }
+  async function importPDFs(entries) {
+    if(!db || mode!=='indexeddb') throw Error('PDF restore requires IndexedDB.');
+    const normalized=[];
+    for(const entry of (Array.isArray(entries)?entries:[])){
+      if(!Array.isArray(entry)||typeof entry[0]!=='string'||!entry[1]||typeof entry[1].data!=='string'||!entry[1].data.startsWith('data:application/pdf;base64,')) throw Error('Invalid PDF backup entry.');
+      const val=entry[1],comma=val.data.indexOf(','),raw=atob(val.data.slice(comma+1)),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+      if(bytes.byteLength>100*1024*1024) throw Error('A PDF in this backup exceeds the 100 MB limit.');
+      normalized.push([entry[0],new Blob([bytes],{type:'application/pdf'})]);
+    }
+    await new Promise((resolve,reject)=>{const tx=db.transaction('pdfs','readwrite'),store=tx.objectStore('pdfs');store.clear();for(const [id,blob] of normalized)store.put(blob,id);tx.oncomplete=resolve;tx.onabort=()=>reject(tx.error||Error('Could not restore PDFs.'));tx.onerror=()=>reject(tx.error);});
+  }
   function rawLegacy(){try{return localStorage.getItem(LEGACY);}catch{return null;}}
-  return {load,save,validate,rawLegacy,recoveryExport,get mode(){return mode;},get locked(){return locked;}};
+  return {load,save,validate,rawLegacy,recoveryExport,setPDF,getPDF,deletePDF,exportPDFs,importPDFs,get mode(){return mode;},get locked(){return locked;}};
 })();
