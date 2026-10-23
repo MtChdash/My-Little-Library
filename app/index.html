@@ -374,7 +374,7 @@ async function importTitleFont(input){const file=input.files[0];input.value="";i
 loadLocalTitleFont();
 async function deleteBook(id){if(confirm("Remove this book from your library?")){try{books=await persistBooks(books.filter(b=>b.id!==id));closeModal("detailModal");render();}catch(e){alert("Could not delete this book. Your library is unchanged.")}}}
 
-let pdfJsPromise=null, activePdfDoc=null, activePdfBookId=null, activePdfPage=1, pdfRenderTask=null, pdfSaveTimer=null;
+let pdfJsPromise=null, activePdfDoc=null, activePdfTask=null, activePdfBookId=null, activePdfPage=1, pdfRenderTask=null, pdfSaveTimer=null;
 async function getPdfJs(){
  if(!pdfJsPromise){
   pdfJsPromise=import("./pdfjs/pdf.mjs").then(mod=>{
@@ -392,7 +392,7 @@ async function inspectPdf(file){
  if(String.fromCharCode(...head)!=="%PDF-") throw Error("This file does not look like a valid PDF.");
  const pdfjs=await getPdfJs();
  const task=pdfjs.getDocument({data:new Uint8Array(await file.arrayBuffer())});
- const doc=await task.promise;const pages=doc.numPages;await doc.destroy();
+ const doc=await task.promise;const pages=doc.numPages;await task.destroy();
  if(!Number.isInteger(pages)||pages<1)throw Error("Could not read the PDF page count.");
  return pages;
 }
@@ -430,10 +430,10 @@ async function openPdfReader(id){
  $("pdfPageLabel").textContent="Opening PDF…";$("pdfPrev").disabled=true;$("pdfNext").disabled=true;
  activePdfBookId=id;activePdfPage=Math.max(1,Math.min(Number(b.pdfPage)||1,Number(b.pdfTotal)||1));
  try{
-  if(activePdfDoc){await activePdfDoc.destroy();activePdfDoc=null;}
+  if(activePdfTask){await activePdfTask.destroy();activePdfTask=null;activePdfDoc=null;}
   const blob=await libraryStorage.getPDF(id);if(!blob)throw Error("The saved PDF file is missing. Reattach it from this device.");
   const pdfjs=await getPdfJs(),task=pdfjs.getDocument({data:new Uint8Array(await blob.arrayBuffer())});
-  activePdfDoc=await task.promise;
+  activePdfTask=task;activePdfDoc=await task.promise;
   if(!activePdfDoc.numPages)throw Error("This PDF contains no readable pages.");
   activePdfPage=Math.max(1,Math.min(Number(b.pdfPage)||1,activePdfDoc.numPages));
   $("pdfReaderProgress").max=activePdfDoc.numPages;$("pdfReaderProgress").value=Number(b.pdfPage)||0;
@@ -480,7 +480,7 @@ $("pdfReaderProgress").addEventListener("input",e=>{const n=Number(e.target.valu
 async function closePdfReader(){
  clearTimeout(pdfSaveTimer);if(activePdfBookId&&activePdfDoc)await savePdfProgress(activePdfBookId,activePdfPage,activePdfDoc.numPages);
  $("pdfReaderModal").classList.remove("open");
- if(activePdfDoc){try{await activePdfDoc.destroy()}catch{}activePdfDoc=null;}
+ if(activePdfTask){try{await activePdfTask.destroy()}catch{}activePdfTask=null;activePdfDoc=null;}
  const id=activePdfBookId;activePdfBookId=null;
  if(id&&$("detailModal").classList.contains("open"))openDetail(id);
 }
