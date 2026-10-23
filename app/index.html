@@ -165,6 +165,49 @@ label{font-size:11px;margin:11px 0 6px}input,textarea,select{padding:10px;border
 .pdfReaderError{color:#ffb5ca;font-size:13px;padding:16px}
 @media(max-width:420px){.pdfAttach{padding:10px}.pdfActions{gap:6px}.pdfActions .primary,.pdfActions .secondary{padding:8px 10px}}
 
+
+/* Responsive desktop workspace: retain the compact phone experience, use the full canvas on larger screens. */
+@media (min-width: 760px){
+  .app{width:100%;max-width:none;margin:0;padding:30px clamp(26px,4vw,72px) 110px}
+  header{margin-bottom:26px}
+  h1{font-size:clamp(30px,2.4vw,42px)}
+  .hero{padding:22px 25px;margin-bottom:24px}
+  .hero p{font-size:14px}
+  .search{padding:14px 16px;font-size:14px}
+  .sectionHead{margin-top:26px}
+  .sectionHead h2{font-size:22px}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:clamp(16px,1.8vw,28px)}
+  .bookTitle{font-size:13px;margin-top:9px}
+  .bookAuthor{font-size:11px}
+  .shelf{margin:28px 0 36px}
+  .fab{left:auto;right:34px;bottom:30px;transform:none}
+  .settingsPage{max-width:920px;padding:34px 40px 48px}
+  .modal{align-items:center;padding:24px}
+  .sheet{width:min(760px,100%);max-height:calc(100dvh - 48px);border-radius:26px;padding:25px 28px 30px}
+  #pdfReaderModal .sheet{width:min(1040px,100%);max-width:1040px}
+  .detail{grid-template-columns:150px minmax(0,1fr);gap:24px}
+  .detail .cover{width:150px}
+}
+@media (min-width: 1200px){
+  .app{padding-left:clamp(56px,5vw,100px);padding-right:clamp(56px,5vw,100px)}
+  .grid{grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:26px}
+}
+/* Tap/click the page to enter an immersive reading view. */
+#pdfCanvas{cursor:zoom-in;touch-action:manipulation}
+#pdfReaderModal.pdfFullscreen{align-items:stretch;padding:0;background:#08060c}
+#pdfReaderModal.pdfFullscreen .sheet{position:relative;width:100%;max-width:none;height:100dvh;max-height:100dvh;border:0;border-radius:0;padding:calc(12px + env(safe-area-inset-top)) 16px calc(12px + env(safe-area-inset-bottom));display:flex;flex-direction:column;overflow:hidden}
+#pdfReaderModal.pdfFullscreen .pdfReaderTop{flex:none;margin-bottom:8px}
+#pdfReaderModal.pdfFullscreen .pdfCanvasWrap{flex:1;min-height:0;max-height:none;width:100%;align-items:center;padding:12px 54px;border-radius:12px;overflow:auto}
+#pdfReaderModal.pdfFullscreen #pdfCanvas{max-width:none;cursor:zoom-out;flex:none}
+#pdfReaderModal.pdfFullscreen .pdfReaderControls{flex:none;margin-top:8px}
+#pdfReaderModal.pdfFullscreen .pdfProgressRow{flex:none;margin-top:7px}
+#pdfReaderModal.pdfFullscreen .pdfProgress{flex:none;margin-bottom:2px}
+.pdfFullscreenNav{display:none;position:absolute;z-index:3;top:50%;transform:translateY(-50%);width:42px;height:58px;border:1px solid #c9a7ff55;border-radius:15px;background:#20182dcc;color:#e9dcff;font-size:27px;line-height:1;backdrop-filter:blur(10px);box-shadow:0 6px 24px #0007}
+#pdfReaderModal.pdfFullscreen .pdfFullscreenNav{display:grid;place-items:center}
+#pdfFullscreenPrev{left:12px}#pdfFullscreenNext{right:12px}
+.pdfFullscreenNav:disabled{opacity:.25;cursor:default}
+@media(max-width:520px){#pdfReaderModal.pdfFullscreen .pdfCanvasWrap{padding-left:42px;padding-right:42px}.pdfFullscreenNav{width:34px;height:50px;border-radius:12px}}
+
 </style>
 </head>
 <body>
@@ -451,7 +494,7 @@ async function renderPdfPage(pageNum){
  if(!activePdfDoc)return;
  if(pdfRenderTask){try{pdfRenderTask.cancel()}catch{}pdfRenderTask=null;}
  const page=await activePdfDoc.getPage(pageNum),canvas=$("pdfCanvas"),wrap=$("pdfCanvasWrap"),base=page.getViewport({scale:1});
- const scale=Math.max(.35,Math.min(1.6,(wrap.clientWidth-24)/base.width)),viewport=page.getViewport({scale}),dpr=Math.min(window.devicePixelRatio||1,2),ctx=canvas.getContext("2d");
+ const full=$("pdfReaderModal").classList.contains("pdfFullscreen");const fitW=(wrap.clientWidth-(full?28:24))/base.width;const fitH=full&&wrap.clientHeight>0?(wrap.clientHeight-24)/base.height:1.6;const scale=Math.max(.25,Math.min(1.6,fitW,fitH)),viewport=page.getViewport({scale}),dpr=Math.min(window.devicePixelRatio||1,2),ctx=canvas.getContext("2d");
  canvas.width=Math.floor(viewport.width*dpr);canvas.height=Math.floor(viewport.height*dpr);canvas.style.width=`${viewport.width}px`;canvas.style.height=`${viewport.height}px`;
  pdfRenderTask=page.render({canvasContext:ctx,viewport,transform:dpr!==1?[dpr,0,0,dpr,0,0]:null});
  try{await pdfRenderTask.promise;}finally{pdfRenderTask=null;}
@@ -474,12 +517,29 @@ async function savePdfProgress(id,page,total){
  const next=books.map(b=>b.id===id?{...b,pdfPage:page,pdfTotal:total}:b);
  try{books=await persistBooks(next);}catch(err){console.warn("Could not save PDF progress",err);}
 }
+function togglePdfFullscreen(force){
+ const modal=$("pdfReaderModal"),next=typeof force==="boolean"?force:!modal.classList.contains("pdfFullscreen");
+ if(modal.classList.contains("pdfFullscreen")===next)return;
+ modal.classList.toggle("pdfFullscreen",next);
+ const canvas=$("pdfCanvas");canvas.style.cursor=next?"zoom-out":"zoom-in";
+ if(activePdfDoc)requestAnimationFrame(()=>renderPdfPage(activePdfPage).catch(err=>{if(err?.name!=="RenderingCancelledException")console.error(err)}));
+}
+$("pdfCanvas").addEventListener("click",()=>togglePdfFullscreen());
+$("pdfFullscreenPrev").addEventListener("click",()=>changePdfPage(activePdfPage-1));
+$("pdfFullscreenNext").addEventListener("click",()=>changePdfPage(activePdfPage+1));
+window.addEventListener("resize",()=>{if(activePdfDoc&&$("pdfReaderModal").classList.contains("open"))requestAnimationFrame(()=>renderPdfPage(activePdfPage).catch(err=>{if(err?.name!=="RenderingCancelledException")console.error(err)}));});
+document.addEventListener("keydown",e=>{
+ if(!$("pdfReaderModal").classList.contains("open"))return;
+ if(e.key==="Escape"&&$("pdfReaderModal").classList.contains("pdfFullscreen")){e.preventDefault();togglePdfFullscreen(false);}
+ else if(e.key==="ArrowLeft")changePdfPage(activePdfPage-1);
+ else if(e.key==="ArrowRight")changePdfPage(activePdfPage+1);
+});
 $("pdfPrev").addEventListener("click",()=>changePdfPage(activePdfPage-1));
 $("pdfNext").addEventListener("click",()=>changePdfPage(activePdfPage+1));
 $("pdfReaderProgress").addEventListener("input",e=>{const n=Number(e.target.value);if(n<1){e.target.value=activePdfPage;return;}changePdfPage(n);});
 async function closePdfReader(){
  clearTimeout(pdfSaveTimer);if(activePdfBookId&&activePdfDoc)await savePdfProgress(activePdfBookId,activePdfPage,activePdfDoc.numPages);
- $("pdfReaderModal").classList.remove("open");
+ $("pdfReaderModal").classList.remove("open","pdfFullscreen");
  if(activePdfTask){try{await activePdfTask.destroy()}catch{}activePdfTask=null;activePdfDoc=null;}
  const id=activePdfBookId;activePdfBookId=null;
  if(id&&$("detailModal").classList.contains("open"))openDetail(id);
