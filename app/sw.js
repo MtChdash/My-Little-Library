@@ -1,5 +1,5 @@
 /* Change RELEASE whenever any app shell asset changes. */
-const RELEASE='cassette-c-pdf-4';
+const RELEASE='cassette-c-pdf-5';
 const PREFIX='little-library-shell-'+encodeURIComponent(new URL(self.registration.scope).pathname)+'-';
 const CACHE=PREFIX+RELEASE;
 const SHELL=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./drag.js','./storage.js','./pwa.js','./connectivity.js','./cassette.js','./pdfjs/pdf.mjs','./pdfjs/pdf.worker.mjs','./fonts/fonts.css',...Array.from({length:8},(_,i)=>'./fonts/font-'+i+'.ttf')];
